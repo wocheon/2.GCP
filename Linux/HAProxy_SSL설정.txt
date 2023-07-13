@@ -1,0 +1,90 @@
+-firewalld ,selinux OFF
+systemctl disable firewalld --now; setenforce 0;
+
+-openssl, haproxy 설치 
+yum install -y curl wget haproxy openssl 
+
+-openssl 확인
+openssl version
+
+-haproxy 확인 
+systemctl status haproxy
+
+- SSL 인증서 발급 
+1. self singned SSL 인증서 발급 
+mkdir /etc/haproxy/certs/; cd /etc/haproxy/certs/    
+openssl genrsa -out rootCA.key 2048    
+openssl req -new -key rootCA.key -out rootCA.csr    
+openssl x509 -req -in rootCA.csr -signkey rootCA.key  -out rootCA.crt
+cat rootCA.key rootCA.crt > rootCA.pem
+
+2.Let’s Encrypt를 통한 무료 인증서 발급 (도메인 필요 > Cloud Domain 구입후 Cloud DNS로 사용함.)
+yum install -y certbot
+certbot --version 
+	=> certbot 1.11.0
+
+certbot certonly --standalone -d testdomainname.info
+cd /etc/letsencrypt/live/testdomainname.info/
+
+cat cert.pem chain.pem privkey.pem >site.pem
+
+
+- 기존 설정파일 백업
+cd /etc/haproxy/; cp haproxy.cfg haproxy.cfg.org
+haproxy -f /etc/haproxy/haproxy.cfg -c
+
+
+- 설정파일 변경 
+vi haproxy.cfg 
+############################################################
+frontend https
+        bind *:8080
+        #bind *:443 ssl crt /etc/haproxy/certs/rootCA.pem
+		# OR
+		#bind *:443 ssl crt /etc/letsencrypt/live/testdomainname.info/site.pem
+        mode http
+        reqadd X-Forwarded-Proto:\ https		
+        redirect scheme https code 301 if !{ ssl_fc }
+        
+		#acl url_static       path_beg       -i /static /images /javascript /stylesheets
+        #acl url_static       path_end       -i .jpg .gif .png .css .js
+		acl url_static hdr_end(host) -i testdomainname.info			#acl로 domian으로 들어오면 backend로 전달함.
+		
+		use_backend web-server if url_static		
+        default_backend web-server
+
+backend web-server
+        balance roundrobin
+        option forwardfor
+        option httplog
+        server web 192.168.1.4:80 check
+		
+#port forwarding 
+#listen test-web 0.0.0.0:8090
+#		mode http
+#		option httpclose
+#		option forwardfor
+#		server test-web1 192.168.2.100:8090 check 
+# 포트포워딩은 같은 포트로만 적용		
+		
+		
+############################################################
+
+- systemctl restart haproxy
+
+-인증서 만료일 확인 
+certbot certificates
+
+--인증서 갱신방법
+systemctl stop haproxy
+certbot renew --dry-run
+
+
+vi renew_cert.sh
+#!/bin/bash
+systemctl stop haproxy
+certbot renew --dry-run
+cd /etc/letsencrypt/live/testdomainname.info/
+cat cert.pem chain.pem privkey.pem >site.pem
+systemctl start haproxy
+certbot certificates
