@@ -1,0 +1,125 @@
+*공통 
+테스트 환경 - centos7
+selinux disabled 
+firewalld disable
+setenforc 0 
+
+vpc 방화벽 80,443,8080 open 
+
+web ip : 192.168.1.100
+was ip : 192.168.2.200
+
+
+
+*was 
+[JDK 설치]
+
+yum install -y java-1.8.0-openjdk java-1.8.0-openjdk-devel
+readlink -f /usr/bin/java
+
+-vi /etc/profile
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64
+PATH=$PATH:$JAVA_HOME/bin
+CLASSPATH=$JAVA_HOME/jre/lib:$JAVA_HOME/lib/tools.jar
+
+
+[tomcat설치]
+wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.90/bin/apache-tomcat-8.5.90.tar.gz
+tar -zxvf apache-tomcat-8.5.90.tar.gz 
+
+mv apache-tomcat-8.5.90 /usr/local/lib/
+mv apache-tomcat-8.5.90/ tomcat
+
+
+-vi /etc/profile
+###########################################
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64
+JRE_HOME=$JAVA_HOME/jre
+
+CATALINA_HOME=/usr/local/lib/tomcat
+PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin:$CATALINA_HOME/bin
+CLASSPATH=.:$JAVA_HOME/lib/tools.jar:$CATALINA_HOME/lib/jsp-api.jar:$CATALINA_HOME/lib/servlet-api.jar
+
+export JAVA_HOME
+export JRE_HOME
+export CLASSPATH CATALINA_HOM
+###########################################
+
+source /etc/profile
+
+
+cd /usr/local/lib/tomcat/bin/
+./startup.sh
+
+curl localhost:8080
+
+
+--tomcat 서비스 등록 
+vi /etc/init.d/tomcat 
+##################################
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64
+export CATALINA_HOME=/usr/local/lib/tomcat
+
+case "$1" in
+    start)
+        echo "Starting tomcat: "
+        $CATALINA_HOME/bin/startup.sh
+        ;;
+    stop)
+        echo "Shutting down tomcat: "
+        $CATALINA_HOME/bin/shutdown.sh
+        ;;
+    restart)
+        echo "Restarting tomcat: "
+        $CATALINA_HOME/bin/shutdown.sh;
+        $CATALINA_HOME/bin/startup.sh
+        ;;
+    *)
+        echo "Usage: service tomcat {start|stop|restart}"
+        exit 1
+esac
+exit 0
+########################################
+
+
+*web
+
+yum install -y httpd 
+
+
+vi /etc/httpd/conf/httpd.conf 
+#################################################################
+     56 Include conf.modules.d/*.conf
+     57 LoadModule proxy_module modules/mod_proxy.so
+     58 LoadModule proxy_connect_module modules/mod_proxy_connect.so
+     59 LoadModule proxy_http_module modules/mod_proxy_http.so
+
+<VirtualHost *:80>
+       ServerName localhost
+       ProxyRequests Off
+       ProxyPreserveHost On
+       <Proxy *>
+                Order deny,allow
+                Allow from all
+        </Proxy>
+        ProxyPass / http://192.168.2.200:8080/
+		ProxyPassReverse / http://192.168.2.200:8080/
+</VirtualHost>
+
+################################################################
+
+
+* Reverse Proxy 로 부하분산
+<VirtualHost *:80>
+  ServerName shop.playon.tistory.com
+  ProxyRequests Off
+  ProxyPreserveHost On
+  <Location /user>
+    ProxyPass http://user.playon.tistory.com/
+    ProxyPassReverse http://user.playon.tistory.com/
+  </Location>
+  <Location /order>
+    ProxyPass http://order.playon.tistory.com/
+    ProxyPassReverse http://order.playon.tistory.com/
+  </Location>
+</VirtualHost>
