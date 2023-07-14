@@ -1,0 +1,140 @@
+1.FROM : 베이스 이미지를 지정하는 것으로 새로운 이미지의 기본베이스가 된다
+
+FROM다음에 베이스 이미지를 지정하고 로컬에 없다면 도커 허브에서 다운로드한다.
+
+​
+
+2.RUN : 이미지내에 필요한 패키지 등을 설치하기위한 명령의 실행이 가능하도록 해준다.
+
+도커 파일 내에서 여러번 사용할 수 있다.
+
+ex) RUN yum install -y httpd php php-mysql git 
+
+​
+
+3.EXPOSE 생성될 컨테이너에서 오픈할 포트를 지정한다
+
+ex) 웹서버 사용시 
+
+EXPOSE 80 or EXPOSE 443
+
+​
+
+4.CMD : 이미지에서가 아니라 컨테이너가 실행된 다음 컨테이너 내에서 실행할 명령어를 작성
+
+일반적으로 CMD는 가장아래에 작성한다.
+
+Dockerfile에서 한번만 사용할수있다.(스크립트도 사용가능)
+
+ex) 컨테이너 실행시 웹서버를 실행하는 경우 
+
+httpd 또는 nginx를 실행한다.
+
+​
+
+ENTRYPOINT : CMD와 동일하게 컨테이너 실행시 전달할 명령어를 작성한다.
+
+이 또한 파일내에서 1번만 사용할수있음 
+
+​
+
+둘의 차이점 : ENTRYPOINT는 컨테이너 실행시 무조건 실행
+
+CMD는 컨테이너 실행시 docker run에서 동일 옵션이 있을 경우 
+
+실행되지않음 
+
+​
+
+만약 컨테이너 실행시 웹서버 하나만 띄우는 것이 아닌
+
+다양한 명령 실행이 필요하다면 스크립트를 사용
+
+(스크립트를 사용하려면 먼저 copy로 전달해주어야함)
+
+​
+
+5.COPY : 이미지에 호스트상의 파일이나 디렉토리를 복사하는 경우 사용
+
+ADD(COPY) 와 비슷한기능을 수행 
+
+​
+
+6.env : 환경변수($HOSTNAME) 선언이 가능 
+
+작성 방법에는 두가지 방법이 존재하고있는
+
+1. 여러줄로 작성하기
+
+ENV MYNAME "user1"
+
+ENV MYORDER "coffe"
+
+2. 한줄로 작성하기 
+
+ENV MYNAME="user1" MYORDER="coffe"
+
+​
+
+7. ADD : COPY와 동일한 기능을 수행하며, 추가적으로 웹상의 파일을 불러올수있다.
+
+또한 패키지 파일이 있다면 이를 압축 해제하여 디렉토리에 부착한다.
+
+ex) 
+
+COPY test.tar /var/www/html > 컨테이너에서 ls /var/www/html/
+
+test.tar
+
+ADD test.tar /var/www/html > 컨테이너에서 ls /var/www/html/
+
+a.jpg TESTDIR
+
+​
+
+8.VLOUME : 이미지에 볼륨을 할당하고자 할때 사용
+
+VLOUME["/var/log"]
+
+VLOUME /var/log
+
+​
+
+-docker file 예시
+
+version: '3.1'
+
+services:
+
+  wordpress:
+    image: wordpress    #base 이미지
+    restart: always     #docker 데몬이 재부팅되더라도 항상 자동실행
+    ports:
+      - 8080:80         #호스트의 8080포트를 서비스의 80포트와 연결
+    environment:        #-e옵션과 동일
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wordpress:/var/www/html #로컬에 wordpress라는 볼륨을 만들어 컨테이너의 /var/www/html에 붙임
+    depends_on:
+      - db                      #실행순서를 결정한다. (db가 먼저 실행되면 wordpress가 실행)
+                                #(DB가 완전히 안정적으로 동작 뒤 실행하는 것은 아님, 그냥 실행순서만 결정)
+
+  db:
+    image: mysql:5.7        
+    restart: always
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_ROOT_PASSWORD: test123
+    volumes:
+      - db:/var/lib/mysql    #db라는 볼륨을 만들어 붙임
+
+volumes:
+  wordpress:
+  db:
+  #둘사이의 연결은 링크가 필요없이 자동으로 연결된다.
+[출처] Dockerfile 작성 요령|작성자 ciw0707
