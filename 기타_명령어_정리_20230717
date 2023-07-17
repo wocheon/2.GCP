@@ -1,0 +1,24 @@
+
+#ls 날짜형식 변경 
+ls -alrt --time-style=long-iso
+
+#tcp port 확인 
+netstat -tnlp
+
+#CPU 관련 확인 
+-물리적 CPU 개수 
+grep "physical id" /proc/cpuinfo | sort -u | wc -l
+
+-CPU 물리적 코어수(실제 코어 수) 
+grep "cpu cores" /proc/cpuinfo | tail -1
+
+-CPU 전체 코어수 (vCPU)
+grep -c processor /proc/cpuinfo
+
+- selinux / firwalld disable
+sed -i 's/=enforcing/=disabled/g' /etc/selinux/config ; setenforce 0; systemctl disable firewalld --now;
+
+- vi/vim 여러줄 주석
+v로 visualmode 진입후 주석처리할 열 선택
+주석처리 > :norm i#
+주석해제 > :norm 1x (가장 앞 1글자 제거)
