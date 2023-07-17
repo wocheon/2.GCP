@@ -23,9 +23,13 @@ yum install -y certbot
 certbot --version 
 	=> certbot 1.11.0
 
+-standalone 방식 사용 ( 80포트 사용하여 가상의 웹서버를 띄워 인증서를 발급합. 80포트 사용중인경우 중지후 사용해야함.. )
 certbot certonly --standalone -d testdomainname.info
-cd /etc/letsencrypt/live/testdomainname.info/
+-webroot 방식 사용 ( webroot 경로를 직접지정하여 인증서 발급 )
+certbot certonly --text --webroot --webroot-path /etc/haproxy -d testdomainname.info
 
+
+cd /etc/letsencrypt/live/testdomainname.info/
 cat cert.pem chain.pem privkey.pem >site.pem
 
 
