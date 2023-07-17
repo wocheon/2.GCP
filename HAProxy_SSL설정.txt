@@ -25,6 +25,7 @@ certbot --version
 
 -standalone 방식 사용 ( 80포트 사용하여 가상의 웹서버를 띄워 인증서를 발급합. 80포트 사용중인경우 중지후 사용해야함.. )
 certbot certonly --standalone -d testdomainname.info
+
 -webroot 방식 사용 ( webroot 경로를 직접지정하여 인증서 발급 )
 certbot certonly --text --webroot --webroot-path /etc/haproxy -d testdomainname.info
 
@@ -122,7 +123,8 @@ certbot certificates
 systemctl stop haproxy
 certbot renew --dry-run #테스트
 certbot renew
-
+*강제갱신
+certbot renew --force-renew --cert-name testdomainname.info-0001
 
 
 *ssl-lab에서 A등급으로 나오는지 확인 ( CNAME(www.xxxxxx)이 아닌 A 레코드로 입력하여 확인)
