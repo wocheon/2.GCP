@@ -35,27 +35,62 @@ haproxy -f /etc/haproxy/haproxy.cfg -c
 
 
 - 설정파일 변경 
+*log설정 
+vi /etc/rsyslog.d/49-haproxy.conf
+############################################
+$ModLoad imudp
+$UDPServerAddress 127.0.0.1
+$UDPServerRun 514
+
+local0.* -/var/log/haproxy/haproxy_0.log
+local1.* -/var/log/haproxy/haproxy_1.log
+############################################
+
+vi /etc/rsyslog.conf
+###########################################
+loacl0.none /var/log/messages 
+###########################################
+
+systemctl restart rsyslog
+
+
+
 vi haproxy.cfg 
 ############################################################
 global
-	tune.ssl.default-dh-param 2048
+    #log파일 설정
+    log 127.0.0.1 local0
+    log 127.0.0.1 local1 notice
+    tune.ssl.default-dh-param 2048
+    # SSL-LAB 권고사항 (A등급 : SSL V3 사용 x, TLS 1.0 / TLS 1.1 사용 x)
+    ssl-default-bind-options no-sslv3
+    ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS
 .
 .
 .
+
+frontend http-redirect
+        bind *:80
+        bind *:443 ssl crt /etc/letsencrypt/live/testdomainname.info/site.pem force-tlsv12
+        reqadd X-Forwarded-Proto:\ https
+        redirect scheme https code 301 if !{ ssl_fc }
+        acl url_static hdr_end(host) -i testdomainname.info
+        use_backend  web-server if url_static
+
 frontend https
         bind *:8080
-        #bind *:443 ssl crt /etc/haproxy/certs/rootCA.pem
+        #bind *:443 ssl crt /etc/haproxy/certs/rootCA.pem force-tlsv12
 		# OR
-		#bind *:443 ssl crt /etc/letsencrypt/live/testdomainname.info/site.pem
+	#bind *:443 ssl crt /etc/letsencrypt/live/testdomainname.info/site.pem force-tlsv12
         mode http
         reqadd X-Forwarded-Proto:\ https		
         redirect scheme https code 301 if !{ ssl_fc }
         
-		#acl url_static       path_beg       -i /static /images /javascript /stylesheets
+	#acl url_static       path_beg       -i /static /images /javascript /stylesheets
         #acl url_static       path_end       -i .jpg .gif .png .css .js
-		acl url_static hdr_end(host) -i testdomainname.info			#acl로 domian으로 들어오면 backend로 전달함.
-		
-		use_backend web-server if url_static		
+	acl url_static hdr_end(host) -i testdomainname.info			#acl로 domian으로 들어오면 backend로 전달함.
+	use_backend web-server if url_static			
+	
         default_backend web-server
 
 backend web-server
@@ -71,8 +106,7 @@ backend web-server
 #		option forwardfor
 #		server test-web1 192.168.2.100:8090 check 
 # 포트포워딩은 같은 포트로만 적용		
-		
-		
+			
 ############################################################
 
 - systemctl restart haproxy
@@ -84,6 +118,8 @@ certbot certificates
 systemctl stop haproxy
 certbot renew --dry-run
 
+
+*ssl-lab에서 A등급으로 나오는지 확인 ( CNAME(www.xxxxxx)이 아닌 A 레코드로 입력하여 확인)
 
 vi renew_cert.sh
 #!/bin/bash
