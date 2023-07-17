@@ -37,6 +37,11 @@ haproxy -f /etc/haproxy/haproxy.cfg -c
 - 설정파일 변경 
 vi haproxy.cfg 
 ############################################################
+global
+	tune.ssl.default-dh-param 2048
+.
+.
+.
 frontend https
         bind *:8080
         #bind *:443 ssl crt /etc/haproxy/certs/rootCA.pem
