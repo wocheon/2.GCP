@@ -120,7 +120,9 @@ certbot certificates
 
 --인증서 갱신방법
 systemctl stop haproxy
-certbot renew --dry-run
+certbot renew --dry-run #테스트
+certbot renew
+
 
 
 *ssl-lab에서 A등급으로 나오는지 확인 ( CNAME(www.xxxxxx)이 아닌 A 레코드로 입력하여 확인)
