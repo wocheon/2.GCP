@@ -18,6 +18,6 @@ session  > Advanced SSH settings의 Use Private Key 체크
            개인키 파일 선택 후 접속 확인.
 
 *putty 
-puttygen 으로 개인키 파일 불러온뒤 genrate
+puttygen 으로 개인키 파일 불러온뒤 save private key 로 ppk 파일 생성 (genrate아님)
 만들어진 ppk 파일을 Connection > Auth > Credentials 에서 private key로 불러온뒤 접속확인.
 
