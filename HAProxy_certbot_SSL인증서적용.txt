@@ -26,7 +26,7 @@ certbot --version
 -standalone 방식 사용 ( 80포트 사용하여 가상의 웹서버를 띄워 인증서를 발급합. 80포트 사용중인경우 중지후 사용해야함.. )
 certbot certonly --standalone -d testdomainname.info
 
--webroot 방식 사용 ( webroot 경로를 직접지정하여 인증서 발급 )
+-webroot 방식 사용 ( webroot 경로를 직접지정하여 인증서 발급>  HAProxy에서는 오류 발생.. )
 certbot certonly --text --webroot --webroot-path /etc/haproxy -d testdomainname.info
 
 
