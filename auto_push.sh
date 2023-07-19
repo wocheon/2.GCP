@@ -23,7 +23,6 @@ fi
 
 git push $remote $branch --force
 
-
 if [ $? -eq 0 ]; then
 	echo -e "\E[42;37mPUSH : OK\E[0m"
 else 
