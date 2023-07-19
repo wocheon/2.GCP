@@ -22,3 +22,25 @@ sed -i 's/=enforcing/=disabled/g' /etc/selinux/config ; setenforce 0; systemctl 
 v로 visualmode 진입후 주석처리할 열 선택
 주석처리 > :norm i#
 주석해제 > :norm 1x (가장 앞 1글자 제거)
+
+- 심볼릭 링크 설정 및 해제
+ln -n [path] [link_nm]
+unlink [link_nm]
+
+
+#crontab 규칙
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |   .------------- hour (0 - 23)
+# |   |   .---------- day of month (1 - 31)
+# |   |   |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |   |   |  |   .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |   |   |  |   |
+# *   *   *  *   *   user-name command to be executed
+# 분  시  일 월  요일 명령어 또는 스크립트
+분 (minute)	0-59, * 설정 시 1분 단위로 실행
+시 (hour)	0-23, * 설정 시 매시간 실행
+일 (day of month)	1-31, * 설정 시 매일 실행
+월 (month)	1-12, * 설정 시 매달 실행 
+요일 (day of week)	0-7, * 설정 시 월요일부터 일요일까지 매일 실행
+명령어 또는 스크립트 (command)	실행할 명령어 또는 프로그램 등 설정
