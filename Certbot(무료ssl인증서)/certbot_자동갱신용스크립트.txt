@@ -4,7 +4,7 @@
 # log_path 디렉토리 생성확인 후 진행.
 
 today_date=$(date '+%y%m%d')
-log_path='/etc/haproxy/ssl_renew_log'
+log_path='/var/log/letsencrypt/ssl_renew_log'
 log_file=$log_path/cert_renew_log_${today_date}.log
 dup_chck=$(find $log_path -name cert_renew_log_$today_date* | wc -l)
 
@@ -16,7 +16,9 @@ fi
 echo -e "\E[;34m##JOB Start##\E[0m"
 echo  "##JOB Start##" >> $log_file
 echo "StartDate : " $(date) | tee -a $log_file
+echo "LogFile : ${log_file}"  | tee -a $log_file
 echo "" | tee -a $log_file
+
 
 echo -e "\E[;34m##Certificate Info##\E[0m"
 echo  "##Certificate Info##" >> $log_file
@@ -26,7 +28,7 @@ echo "" | tee -a $log_file
 domain=$(tail -5 /var/log/letsencrypt/letsencrypt.log | grep Domains: | gawk -F': ' '{print $2}')
 expiry_date=$(tail -5 /var/log/letsencrypt/letsencrypt.log | grep VALID: | gawk -F'VALID: ' '{print $2}' | gawk '{print $1}')
 
-if [ $expiry_date -gt 100 ]; then
+if [ $expiry_date -gt 30 ]; then
         echo -e "\E[41;37m *Expiry Date : ${expiry_date} Days Remain \E[0m"
         echo -e "\E[41;37m Renew Certificates Canceled  \E[0m"
 #        rm -f $log_file
