@@ -1,0 +1,20 @@
+#네트워크 서버와 시간 동기화
+yum install rdate
+rdate -s time.bora.net
+date
+
+#타임존 변경
+[root@haproxy testdomainnames2.com]# timedatectl list-timezones | grep Seoul
+Asia/Seoul
+
+
+[root@haproxy testdomainnames2.com]# timedatectl set-timezone Asia/Seoul
+[root@haproxy testdomainnames2.com]# timedatectl
+      Local time: Wed 2023-07-19 13:07:32 KST
+  Universal time: Wed 2023-07-19 04:07:32 UTC
+        RTC time: Wed 2023-07-19 04:07:33
+       Time zone: Asia/Seoul (KST, +0900)
+     NTP enabled: yes
+NTP synchronized: no
+ RTC in local TZ: no
+      DST active: n/a
