@@ -34,6 +34,7 @@ prometheus web : 외부IP:9000
 [grafana]
 --grafana 설치
 yum install -y https://dl.grafana.com/enterprise/release/grafana-enterprise-10.0.2-1.x86_64.rpm
+yum remove https://dl.grafana.com/enterprise/release/grafana-enterprise-10.0.2-1.x86_64.rpm
 systemctl start grafana-server 
 
 --grafana 접속 
@@ -104,3 +105,5 @@ scrape_configs:
     static_configs:
     - targets: ['localhost:9100', '192.168.2.3:9100', '192.168.2.4:9100']
 ###############################################################################
+
+systemctl restart prometheus grafana-server
