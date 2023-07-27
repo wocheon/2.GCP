@@ -1,0 +1,145 @@
+[GITLAB 설치 - 패키지 설치]
+
+-필수 종속성 설치
+yum install -y curl policycoreutils-python openssh-server
+
+
+yum install -y postfix
+systemctl enable postfix --now
+
+
+-gitlab 설치
+curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+
+yum install -y gitlab-ce
+
+
+*https 설정시 
+vim /etc/gitlab/gitlab.rb
+===============================================
+external_url 'https://gitlab.example.com'
+
+letsencrypt['enable'] = true
+letsencrypt['contact_emails'] = ['admin@example.com'] # This should be an arra
+=================================================
+
+*기본 설정 
+===============================================
+external_url 'http://localhost'
+=================================================
+
+
+
+gitlab-ctl reconfigure
+
+
+기본 URL : http://localhost
+
+*502 GitLab is taking too much time to respond 에러가 발생시
+
+
+
+gitlab-ctl stop
+vi /etc/gitlab/gitlab.rb
+다음 port를 안쓰는 port로 변경
+unicorn['port]=port or puma['port']=port
+
+external_url 'http://서버주소:port'
+puma['port'] = port 변경 후 주석해제
+gitlab-ctl reconfigure
+gitlab-ctl start
+ 
+
+
+
+
+
+[docker-compose로 gitlab 설치]
+
+--docker 설치 
+yum install -y docker 
+systemctl enable docker --now 
+docker --version
+
+--docker-compose 설치 
+curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+
+--gitlab yml파일 작성 
+vi docker-compose.yml
+--------------------------------------------------
+version: '3.6'
+services:
+  web:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: 'gitlab.example.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '10022:22'
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    shm_size: '256m'
+--------------------------------------------------
+
+
+* 기존 docker 버전(1.13.1)으로 진행시 
+ThreadError: can't create Thread: Operation not permitted 오류 발생하므로
+docker version 업그레이드 필요. (docker 20.10.10 이상)
+
+--기존버전 확인 
+docker --version => 1.13.1
+
+--기존 컨테이 삭제 
+docker rm root_web_1 -f
+
+--yum update 및 기존 docker 삭제 
+yum update
+yum remove -y docker-common
+
+
+--docker 공식 repo 추가 
+yum install -y yum-utils device-mapper-persistent-data lvm2
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+--설치가능한 도커 버전 확인
+yum list docker-ce --showduplicates | sort -r
+
+--docker 최신버전 설치 
+yum install -y docker-ce.x86_64
+
+--버전확인 
+docker --version
+Docker version 24.0.5, build ced0996
+
+
+--docker-compose run 
+docker-compse up -d 
+
+--컨테이너 확인
+docker ps 
+
+--컨테이너 로그 조회 ( 컨테이너 올린후 3분정도 소요)
+docker logs -f 
+
+
+--접속 URL 
+http://localhost
+
+--root 접속
+ID : root  
+passwd : /root/gitlab/config/initial_root_password 확인
+
+--신규 유저 생성 시 pending상태로 요청되며 root계정으로 접속후에 승인해야 정상적으로 등록.
+
+--project(repository) 생성후 테스트 진행.
+ 
+
+
