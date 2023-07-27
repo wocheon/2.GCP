@@ -1,5 +1,9 @@
 [GITLAB 설치 - 패키지 설치]
-머신 유형 : e2-standard-2 (최소사양 4core 4GB RAM - 500명이상 사용가능) 
+머신 유형 : e2-standard-2 
+( GITLAB 공식 - 최소사양 4core 4GB RAM - 500명이상 사용가능
+	테스트 결과 CPU 사용량보다 RAM 사용량이 문제로 보여 
+	2 core 8GB RAM으로 설정하였음 ) 
+
 
 -필수 종속성 설치
 yum install -y postfix
@@ -13,7 +17,13 @@ curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rp
 EXTERNAL_URL="localhost" yum install -y gitlab-ce
 
 
-[docker-compose로 gitlab 설치]
+--root 로그인 
+--root 접속
+ID : root  
+passwd : cat /etc/gitlab/initial_root_password
+
+
+[GITLAB 설치 - docker-compose로 설치]
 
 --docker 설치 
 yum install -y docker 
@@ -102,3 +112,56 @@ passwd : /root/gitlab/config/initial_root_password 확인
  
 
 
+[gitlab https 적용방법]
+-도메인 필요
+
+$ vi /etc/gitlab/gitlab.rb
+-------------------------------------------------
+external_url 'https://testdomainname.info'
+...
+
+################################################################################
+# Let's Encrypt integration
+################################################################################
+ letsencrypt['enable'] = true
+ letsencrypt['contact_emails'] = ['wocheon07@gmail.com'] # This should be an array of email addresses to add as contacts
+ letsencrypt['key_size'] = 2048
+
+#자동갱신 적용시에 활성화
+ letsencrypt['auto_renew'] = true
+ letsencrypt['auto_renew_hour'] = 12
+ letsencrypt['auto_renew_minute'] = 30 # Should be a number or cron expression, if specified.
+ letsencrypt['auto_renew_day_of_month'] = "*/7"
+ letsencrypt['auto_renew_log_directory'] = '/var/log/gitlab/lets-encrypt'
+-----------------------------------------------------------------------------------------------------
+
+$ gitlab-ctl reconfigure
+
+
+/etc/gitlab/ssl 디렉토리 생성확인 및 https로 접속 확인. (clone URL도 https가 적용됨)
+
+
+[github repository import 활성화 ]
+--gitlab 세팅
+Admin Area > Settings > General > Visibility and access controls
+Import sources 에서 github 체크 후 save&change
+
+--github에서 token 발행 
+setting > Developer Settings >  Personal access tokens
+(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)
+
+
+Import project 에서 github 선택후 토큰 붙여넣기
+
+*import 완료된 project에 발생하는 push, commit등은 github와 동기화되지는 않는다.
+
+[gitlab ssl인증서 에러 발생시]
+ex)
+fatal: unable to access 'https://testdomainname.info/wocheon/docker_images.git/': SSL certificate problem: self-
+signed certificate in certificate chain
+
+git config --global http.sslVerify false
+	or
+export GIT_SSL_NO_VERIFY=0
+
+[한글설정]

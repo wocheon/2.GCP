@@ -265,6 +265,59 @@ pipeline {
 	웹상에서 commit 생성 후 빌드가 진행되는지 확인.
 	local에서 push 후에도 정상적으로 빌드 되는지 확인.
 
+[GIT LAB에서 webhook 구성.]
+
+1.Jenkins Plugins에서 GItlab 검색하여 전체 설치 진행.
+
+
+2.gitlab에서 Access token 발급 후, Jenkins에 credential로 등록 
+ 
+ *gitlab
+ - 프로젝트 선택 > setting> 엑세스 토큰 > role : developer , api 체크 후 생성 
+ 
+ *jenkins
+ - global credentials > add credential
+	Kind : GitLab API token
+	API token : [gitlab에서 생성한 프로젝트 토큰값 입력]
+	ID : [gitlab id]
+ 
+3. Jenkins- Gitlab 연결 
+	*Jenkins 
+	jenkins관리 >	system > Gitlab 
+	
+	Connection name : [연결 명칭 입력]
+	GitLab host URL : [gitlab주소 ex) https://testdomainname.info ]
+	Credentials : [이전 단계에서 생성한 credential 선택]
+	
+	-테스트 후 Success 뜨면 저장
+
+
+4. trigger를 Webhook으로 설정하여 Pipeline 프로젝트 생성
+	
+	*Jenkins
+	new item > pipeline 
+	
+	- Build Triggers 부분에 표시된 webhook URL 복사 
+	ex)
+	Build when a change is pushed to GitLab. 
+	GitLab webhook URL: http://34.64.241.60:8080/project/gitlab-test
+	
+	- 아래로 내려가서 고급 > Secret token Generate 후 복사 
+	
+	*Gitlab 
+	프로젝트설정 > 웹훅 > add new webhook
+	
+	URL : [Jenkins trigger 부분에 표시된 URL 입력 ]
+	token : [생성한 Secret 토큰 입력]	
+	trigger : [용도에 맞게 선택] ( 일단 푸쉬이벤트만 선택함..)
+	SSL verification : 체크 
+	
+	웹훅 추가 후 > 테스트 > 푸쉬이벤트로 테스트 진횅.
+	(Hook executed successfully: HTTP 200 메세지가 나오면 성공)
+	
+	파이프라인 스크립트 입력후 저장.
+	(수동 빌드 및 로컬 push시 자동 빌드 모두 확인완료)
+	
 
 * 최종 구성도
 로컬에서 docker image 등을 수정 후 git push 
