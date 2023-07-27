@@ -1,9 +1,7 @@
 [GITLAB 설치 - 패키지 설치]
+머신 유형 : e2-standard-2 (최소사양 4core 4GB RAM - 500명이상 사용가능) 
 
 -필수 종속성 설치
-yum install -y curl policycoreutils-python openssh-server
-
-
 yum install -y postfix
 systemctl enable postfix --now
 
@@ -11,47 +9,8 @@ systemctl enable postfix --now
 -gitlab 설치
 curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
 
-yum install -y gitlab-ce
 
-
-*https 설정시 
-vim /etc/gitlab/gitlab.rb
-===============================================
-external_url 'https://gitlab.example.com'
-
-letsencrypt['enable'] = true
-letsencrypt['contact_emails'] = ['admin@example.com'] # This should be an arra
-=================================================
-
-*기본 설정 
-===============================================
-external_url 'http://localhost'
-=================================================
-
-
-
-gitlab-ctl reconfigure
-
-
-기본 URL : http://localhost
-
-*502 GitLab is taking too much time to respond 에러가 발생시
-
-
-
-gitlab-ctl stop
-vi /etc/gitlab/gitlab.rb
-다음 port를 안쓰는 port로 변경
-unicorn['port]=port or puma['port']=port
-
-external_url 'http://서버주소:port'
-puma['port'] = port 변경 후 주석해제
-gitlab-ctl reconfigure
-gitlab-ctl start
- 
-
-
-
+EXTERNAL_URL="localhost" yum install -y gitlab-ce
 
 
 [docker-compose로 gitlab 설치]
