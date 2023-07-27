@@ -81,7 +81,7 @@ jenkins 관리 > Nodes > New Node
 			-Private Key : Enter directly 선택 후 마스터 노드의 개인키 값을 입력 
 
 	-Host Key Verification Strategy : Known hosts file Verification Strategy
-		*( Slave 노드에서 /var/lib/jenkins/.ssh/ 디렉토리 생성 후, .ssh에 있는 known_hosts를 복사해둘것)
+		*( Master 노드에서 /var/lib/jenkins/.ssh/ 디렉토리 생성 후, .ssh에 있는 known_hosts를 복사해둘것)
 	
 	-고급 
 		-Port : SSH Port
@@ -318,9 +318,86 @@ pipeline {
 	파이프라인 스크립트 입력후 저장.
 	(수동 빌드 및 로컬 push시 자동 빌드 모두 확인완료)
 	
+[docker node 연동 및 테스트 ]
+
+1.slave 노드에서 image 확인 및 run test
+---------------------------------------------
+pipeline {
+	agent {
+		label 'slave'    
+	}
+	stages {
+		stage('Check image') {
+			steps {
+				sh '''hostname 
+					  hostname -i 
+					  docker image ls  | grep nginx
+					  docker container ls -a'''
+			}
+		}
+		stage('Container Run') {
+			steps {
+				sh '''docker container run -d -p 80:80 --name nginx_test nginx
+				      docker container ls -l
+					  curl localhost'''
+			}
+		}
+		stage('Container Remove') {
+			steps {
+				sh '''docker container rm nginx_test -f
+					  docker container ls -l'''
+			}
+		}
+	}
+}
+--------------------------------------------------
+
+
+2. gilab에 변경사항이 push 되면 webhook을 통해 Jenkins PIPELINE을 가동
+(기존 동작중인 컨테이너를 삭제하고,
+ 새 index.html 파일을 docker image에 포함해서 web_test이미지를 재생성하여 컨테이너 run)
+
+---------------------------------------------------------------------
+pipeline {
+	agent {
+		label 'slave'    
+	}
+	stages {
+		stage('Check Path') {
+			steps {
+				sh '''hostname 
+					  hostname -i 
+					  pwd
+					  docker image ls
+					  docker rm web_test -f
+					  '''
+			}
+		}
+		stage('Checkout') {
+			steps {
+				git branch: 'master',
+					credentialsId: 'gitlab-token',
+					url: 'https://testdomainname.info/wocheon/docker_images.git'
+			}
+		}
+		stage('Deploy') {
+			steps {
+				sh '''docker build -t web_test .
+					docker run -d -p 80:80 --name web_test web_test
+					docker container ls 
+					curl localhost					
+				   '''
+			}
+		}
+	}
+}
+---------------------------------------------------------------------
+
 
 * 최종 구성도
 로컬에서 docker image 등을 수정 후 git push 
 > git webhook 
 > jenkins pipeline 진행 ( 빌드 => 테스트 => 배포) 
 > slave node에 docker container 생성 > 확인 
+
+
