@@ -46,6 +46,3 @@ password  [success=1 default=ignore]  pam_unix.so  obscure  use_authok  try_firs
 
    try_first_pass : 처음 변경시 정책에 어긋나도 허용
      
-  
-              
-  
