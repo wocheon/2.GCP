@@ -398,41 +398,43 @@ pipeline {
 
 *pipeline IF문 사용 및 명령어 결과값 변수 사용 
 =======================================================================================
-pipeline{
-    agent{
-		label 'slave'
+pipeline {
+	agent {
+		label 'slave'    
 	}
-    stages{
-        stage('var check'){
-            steps{
-                script{
-                    var1 = sh(script: 'ls -l | wc -l', returnStdout: true).trim()
-                }
-				
-                echo '${var1}'
-                sh """pwd
-				   ls -l
-				   echo ${var1}"""
-            }
-        }
-        stage('if check'){
-            steps{
-				echo "aa"
-                script{
-                    var1 = sh(script: 'ls -l | wc -l', returnStdout: true).trim()
-					sh "echo ${var1}"
-                    if(var1==1){
-                        sh "echo \'ok(${var1})\'"
-                    }
-                    else{
-                         sh "echo \'no(${var1})\'"
-                    }
-                }
-                
-            }
-        }
-    }
-    
+	stages {
+		stage('Check Path') {
+			steps {
+				sh '''hostname 
+					  hostname -i 
+					  pwd
+					  docker image ls
+					  '''
+				script{
+				    chck = sh(script: 'docker container ls --all | grep web_test | wc -l', returnStdout: true).trim()
+				    if(chck>=1){
+				        sh "docker rm web_test -f"
+				    }
+				}
+			}
+		}
+		stage('Checkout') {
+			steps {
+				git branch: 'master',
+					credentialsId: 'gitlab-token',
+					url: 'https://testdomainname.info/wocheon/docker_images.git'
+			}
+		}
+		stage('Deploy') {
+			steps {
+				sh '''docker build -t web_test .
+					docker run -d -p 80:80 --name web_test web_test
+					docker container ls 
+					curl localhost					
+				   '''
+			}
+		}
+	}
 }
 =======================================================================================
 

@@ -80,7 +80,28 @@ case "$1" in
 esac
 exit 0
 ########################################
+chmod 775 tomcat
 
+OR
+
+
+$ vi /etc/systemd/system/tomcat.service
+########################################
+[Unit]
+Description=tomcat
+After=network.target syslog.target
+
+[Service]
+Type=forking
+Environment=/usr/local/lib/tomcat
+User=root
+Group=root
+ExecStart=/usr/local/lib/tomcat/bin/startup.sh
+ExecStop=/usr/local/lib/tomcat/bin/shutdown.sh
+
+[Install]
+WantedBy=multi-user.target
+########################################
 
 *web
 
