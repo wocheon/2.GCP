@@ -24,11 +24,11 @@ CLASSPATH=$JAVA_HOME/jre/lib:$JAVA_HOME/lib/tools.jar
 
 
 [tomcat설치]
-wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.90/bin/apache-tomcat-8.5.90.tar.gz
-tar -zxvf apache-tomcat-8.5.90.tar.gz 
+wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.91/bin/apache-tomcat-8.5.91.tar.gz
+tar -zxvf apache-tomcat-8.5.91.tar.gz 
 
-mv apache-tomcat-8.5.90 /usr/local/lib/
-mv apache-tomcat-8.5.90/ tomcat
+mv apache-tomcat-8.5.91 /usr/local/lib/
+mv apache-tomcat-8.5.91/ tomcat
 
 
 -vi /etc/profile
