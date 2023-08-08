@@ -42,7 +42,7 @@ CLASSPATH=.:$JAVA_HOME/lib/tools.jar:$CATALINA_HOME/lib/jsp-api.jar:$CATALINA_HO
 
 export JAVA_HOME
 export JRE_HOME
-export CLASSPATH CATALINA_HOM
+export CLASSPATH CATALINA_HOME
 ###########################################
 
 source /etc/profile
