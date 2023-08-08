@@ -27,7 +27,7 @@ CLASSPATH=$JAVA_HOME/jre/lib:$JAVA_HOME/lib/tools.jar
 wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.91/bin/apache-tomcat-8.5.91.tar.gz
 tar -zxvf apache-tomcat-8.5.91.tar.gz 
 
-mv apache-tomcat-8.5.91/ ; mv tomcat /usr/local/lib/
+mv apache-tomcat-8.5.91/ tomcat; mv tomcat /usr/local/lib/
 
 
 -vi /etc/profile
