@@ -54,7 +54,7 @@ cd /usr/local/lib/tomcat/bin/
 curl localhost:8080
 
 
---tomcat 서비스 등록 
+--tomcat 서비스 등록 (아래걸로 사용)
 vi /etc/init.d/tomcat 
 ##################################
 export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64
