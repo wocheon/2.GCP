@@ -1,3 +1,5 @@
+
+
 [GITLAB 설치 - 패키지 설치]
 머신 유형 : e2-standard-2 
 ( GITLAB 공식 - 최소사양 4core 4GB RAM - 500명이상 사용가능

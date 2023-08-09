@@ -1,29 +1,46 @@
-[Jenkins 설치 진행]
---종속 패키지 설치
-yum install -y wget maven git docker
-(JDK가 같이 설치되나 버전 문제로 인해 JDK 11로 변경 필요.)
+# Jenkins - Jenkins 설치 및 기본설정
 
---jdk 버전 변경
+## Jenkins 설치 진행
+### 종속 패키지 설치
+```bash
+yum install -y wget maven git docker
+```
+`JDK가 같이 설치되나 버전 문제로 인해 JDK 11로 변경 필요.`
+
+### jdk 버전 변경
+```bash
 yum install -y java-11-openjdk-devel.x86_64
 update-alternatives --config java (11버전으로 변경)
+```
 
-$which java
+### 환경변수 설정
+```bash
+$ which java
 /bin/java
+```
+<br>
 
-$readlink -f /bin/java
+```
+$ readlink -f /bin/java
 /usr/lib/jvm/java-11-openjdk-11.0.19.0.7-1.el7_9.x86_64/bin/java
-
-vi /etc/profile
-=================================================
+```
+<br>
+>vi /etc/profile
+```bash
 JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.19.0.7-1.el7_9.x86_64
 PATH=$PATH:$JAVA_HOME/bin
 CLASSPATH=$JAVA_HOME/jre/lib:$JAVA_HOME/lib/tools.jar
-=================================================
+```
+<br>
 
+### 환경변수 재설정
+```bash
 source /etc/profile 
-(JDK는 Slave NODE에도 설치)
+```
+`(JDK는 Slave NODE에도 설치)`
 
---jenkins 설치
+
+## Jenkins 설치
 wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
 rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
 
