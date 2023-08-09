@@ -1,67 +1,128 @@
--firewalld ,selinux OFF
+# HAProxy에서 certbot을 이용하여 SSL인증서 적용
+
+## 기본 세팅
+- firewalld ,selinux OFF
+```bash
 systemctl disable firewalld --now; setenforce 0;
+```
+<br>
 
--openssl, haproxy 설치 
-yum install -y curl wget haproxy openssl 
+- openssl, haproxy 설치
+```bash
+yum install -y curl wget haproxy openssl
+```
+<br>
 
--openssl 확인
+- openssl 확인
+```bash
 openssl version
+```
+<br>
 
--haproxy 확인 
+- haproxy 상태 확인
+```
 systemctl status haproxy
+```
+<br>
 
-- SSL 인증서 발급 
-1. self singned SSL 인증서 발급 
-mkdir /etc/haproxy/certs/; cd /etc/haproxy/certs/    
-openssl genrsa -out rootCA.key 2048    
-openssl req -new -key rootCA.key -out rootCA.csr    
-openssl x509 -req -in rootCA.csr -signkey rootCA.key  -out rootCA.crt
-cat rootCA.key rootCA.crt > rootCA.pem
+# HAProxy log 설정 
 
-2.Let’s Encrypt를 통한 무료 인증서 발급 (도메인 필요 > Cloud Domain 구입후 Cloud DNS로 사용함.)
-yum install -y certbot
-certbot --version 
-	=> certbot 1.11.0
+* 설정파일 수정
 
--standalone 방식 사용 ( 80포트 사용하여 가상의 웹서버를 띄워 인증서를 발급합. 80포트 사용중인경우 중지후 사용해야함.. )
-certbot certonly --standalone -d testdomainname.info
+>vi /etc/rsyslog.d/49-haproxy.conf
 
--webroot 방식 사용 ( webroot 경로를 직접지정하여 인증서 발급>  HAProxy에서는 오류 발생.. )
-certbot certonly --text --webroot --webroot-path /etc/haproxy -d testdomainname.info
-
-
-cd /etc/letsencrypt/live/testdomainname.info/
-cat cert.pem chain.pem privkey.pem >site.pem
-
-
-- 기존 설정파일 백업
-cd /etc/haproxy/; cp haproxy.cfg haproxy.cfg.org
-haproxy -f /etc/haproxy/haproxy.cfg -c
-
-
-- 설정파일 변경 
-*log설정 
-vi /etc/rsyslog.d/49-haproxy.conf
-############################################
+```bash
 $ModLoad imudp
 $UDPServerAddress 127.0.0.1
 $UDPServerRun 514
 
 local0.* -/var/log/haproxy/haproxy_0.log
 local1.* -/var/log/haproxy/haproxy_1.log
-############################################
+```
+<br>
 
-vi /etc/rsyslog.conf
-###########################################
+>vi /etc/rsyslog.conf
+```bash
 loacl0.none /var/log/messages 
-###########################################
+```
+<br>
 
+* rsyslog 재시작
+```bash
 systemctl restart rsyslog
+```
+<br>
 
 
+## Self Singned SSL 인증서 발급 
+```bash
+mkdir /etc/haproxy/certs/; cd /etc/haproxy/certs/    
+openssl genrsa -out rootCA.key 2048    
+openssl req -new -key rootCA.key -out rootCA.csr    
+openssl x509 -req -in rootCA.csr -signkey rootCA.key  -out rootCA.crt
+cat rootCA.key rootCA.crt > rootCA.pem
+```
+$\textcolor{orange}{\textsf{* 해당 방법으로 인증서 발급시, 유효하지 않은 인증서로 나옴}}$ 
+<br>
+<br>
 
-vi haproxy.cfg 
-############################################################
+## Certbot(Let's Encrypt) SSL 인증서 발급 
+* 해당 방법 적용시 도메인이 필요 <br>
+`Cloud Domain 구입후 Cloud DNS로 사용함.`
+
+* certbot 설치
+```bash
+yum install -y certbot
+```
+<br>
+
+* certbot 버전 확인
+```bash 
+certbot --version
+certbot 1.11.0
+```
+<br>
+
+* Certbot 인증방식
+1. standalone
+   	- 80포트 사용하여 가상의 웹서버를 띄워 인증서를 발급합. 80포트 사용중인경우 중지후 사용해야함.. 
+3. webroot 
+   	-  webroot 경로를 직접지정하여 인증서 발급  $\textcolor{orange}{\textsf{* HAProxy에서는 오류 발생 }}$   
+
+<br>
+
+* standalone 방식 사용
+```bash
+certbot certonly --standalone -d testdomainname.info
+```
+<br>
+
+* webroot 방식 사용
+```bash
+certbot certonly --text --webroot --webroot-path /etc/haproxy -d testdomainname.info
+```
+<br>
+
+
+* pem 파일 생성
+```bash
+cd /etc/letsencrypt/live/testdomainname.info/
+cat cert.pem chain.pem privkey.pem >site.pem
+```
+<br>
+
+
+- 기존 설정파일 백업
+```bash
+cd /etc/haproxy/; cp haproxy.cfg haproxy.cfg.org
+haproxy -f /etc/haproxy/haproxy.cfg -c
+```
+<br>
+
+- haproxy.cfg 수정
+
+>vi haproxy.cfg 
+```bash
 global
     #log파일 설정
     log 127.0.0.1 local0
@@ -110,26 +171,59 @@ backend web-server
 #		option httpclose
 #		option forwardfor
 #		server test-web1 192.168.2.100:8090 check 
-# 포트포워딩은 같은 포트로만 적용		
-			
-############################################################
+# 포트포워딩은 같은 포트로만 적용
+```
+<br>			
 
-- systemctl restart haproxy
+- haproxy.cfg 파일 검증
+```bash
+haproxy -f /etc/haproxy/haproxy.cfg -c
+```
+<br>
 
--인증서 만료일 확인 
+- HAProxy 재시작
+```bash
+systemctl restart haproxy
+```
+<br>
+
+
+## Certbot 인증서 갱신
+
+- 인증서 만료일 확인 
+```bash
 certbot certificates
+```
+<br>
 
---인증서 갱신방법
+- 인증서 갱신방법
+```bash
 systemctl stop haproxy
-certbot renew --dry-run #테스트
+certbot renew --dry-run # 갱신 전 테스트
 certbot renew
-*강제갱신
+```
+$\textcolor{orange}{\textsf{* 갱신 오류가 많이나면 limit 걸려서 다음날 가능하므로 주의 할것. }}$   
+ <br>
+
+
+* 강제갱신
+```bash
 certbot renew --force-renew --cert-name testdomainname.info-0001
+```
+<br>
 
 
-*ssl-lab에서 A등급으로 나오는지 확인 ( CNAME(www.xxxxxx)이 아닌 A 레코드로 입력하여 확인)
+## 인증서 등급 확인
+* ssl-lab에서 A등급으로 나오는지 확인
+	* ( CNAME(www.xxxxxx)이 아닌 A 레코드로 입력하여 확인)
 
-vi renew_cert.sh
+<br>
+
+## Cerbot 인증서 자동갱신 스크립트
+$\textcolor{orange}{\textsf{* Script 폴더에 상세하게 작성한게 있으니 그걸로 사용할것.}}$   
+
+>vi renew_cert.sh
+```bash
 #!/bin/bash
 systemctl stop haproxy
 certbot renew --dry-run
@@ -137,3 +231,4 @@ cd /etc/letsencrypt/live/testdomainname.info/
 cat cert.pem chain.pem privkey.pem >site.pem
 systemctl start haproxy
 certbot certificates
+```
