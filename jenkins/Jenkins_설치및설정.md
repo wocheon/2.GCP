@@ -39,7 +39,7 @@ CLASSPATH=$JAVA_HOME/jre/lib:$JAVA_HOME/lib/tools.jar
 source /etc/profile 
 ```
 `(JDK는 Slave NODE에도 설치)`
-
+<br>
 
 ## Jenkins 설치
 
