@@ -24,7 +24,7 @@ PATH=$PATH:$JAVA_HOME/bin
 CLASSPATH=$JAVA_HOME/jre/lib:$JAVA_HOME/lib/tools.jar
 ```
 
-*환경변수 재설정
+* 환경변수 재설정
 ```bash
 source /etc/profile 
 ```
@@ -58,7 +58,7 @@ CLASSPATH=.:$JAVA_HOME/lib/tools.jar:$CATALINA_HOME/lib/jsp-api.jar:$CATALINA_HO
 ```
 <br>
 
-*환경변수 재설정
+* 환경변수 재설정
 ```bash
 source /etc/profile 
 ```
