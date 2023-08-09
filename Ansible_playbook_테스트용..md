@@ -6,10 +6,11 @@
 ```bash
  cat /etc/ssh/sshd_config | egrep -e '(PubkeyAuthentication|PermitRootLogin|PasswordAuthentication)' | grep -v '#'
 ```
->PubkeyAuthentication yes <br>
-PermitRootLogin yes	<br>
-PasswordAuthentication yes <br>
+>PubkeyAuthentication yes
+>PermitRootLogin yes	
+>PasswordAuthentication yes 
 </br>
+
 * 설정 변경
  
 ```bash
