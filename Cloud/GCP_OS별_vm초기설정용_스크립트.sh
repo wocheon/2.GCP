@@ -1,4 +1,4 @@
-*CentOS 7	
+#*CentOS 7	
 sudo -i << EOF
 echo "root:welcome1" | /sbin/chpasswd
 echo "wocheon07:welcome1" | /sbin/chpasswd
@@ -12,7 +12,7 @@ echo "$(hostname -i) $(hostname)" >> /etc/hosts
 EOF
 
 
-* Ubuntu
+#* Ubuntu
 sudo -i << EOF
 echo "root:welcome1" | /usr/sbin/chpasswd
 echo "wocheon07:welcome1" | /usr/sbin/chpasswd
