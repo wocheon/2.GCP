@@ -210,7 +210,7 @@ docker run -d -it -p 8090:8080 --name web-app web-app
 |환경|Local PC|>|Gitlab|>|Jenkins(maven)|>|Docker|
 |:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|
 |Pipeline|`push`|>|`Webhook`|>|`build`|>|`Deploy`|
-|작업내용|`push`|>|`Webhook`|>|`mvn build`|>|`docker build&run`|
+|작업내용|`push`|>|`Webhook`|>|`mvn build`|>|`docker build&run<br>(Deploy)`|
 
 * PIPELINE 스크립트
 ```python
