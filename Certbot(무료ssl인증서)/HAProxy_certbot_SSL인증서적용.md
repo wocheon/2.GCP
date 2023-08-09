@@ -221,7 +221,8 @@ certbot renew --force-renew --cert-name testdomainname.info-0001
 
 ## Cerbot 인증서 자동갱신 스크립트
 $\textcolor{orange}{\textsf{* 동일 위치에 상세하게 작성한게 있으니 그걸로 사용할것. }}$   
-[https://github.com/wocheon/2.Linux/blob/main/Certbot(%EB%AC%B4%EB%A3%8Cssl%EC%9D%B8%EC%A6%9D%EC%84%9C)/certbot_%EC%9E%90%EB%8F%99%EA%B0%B1%EC%8B%A0%EC%9A%A9%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8.sh](certbot 자동갱신용 스크립트.sh)
+
+[2.Linux/Certbot(무료ssl인증서)/certbot_자동갱신용스크립트.sh](https://github.com/wocheon/2.Linux/blob/main/Certbot(%EB%AC%B4%EB%A3%8Cssl%EC%9D%B8%EC%A6%9D%EC%84%9C)/certbot_%EC%9E%90%EB%8F%99%EA%B0%B1%EC%8B%A0%EC%9A%A9%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8.sh)
 
 >vi renew_cert.sh
 ```bash
