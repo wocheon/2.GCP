@@ -146,7 +146,7 @@ flush privileges;
 ```
 <br>
 
- -테이블 생성 및 데이터 입력
+ - 테이블 생성 및 데이터 입력
  ```sql
 use tomcat;
 create table test (id varchar(20) primary key, pw varchar(20));
