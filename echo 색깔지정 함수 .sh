@@ -1,3 +1,4 @@
+#!/bin/bash
 # ubuntu 쉘스크립트로 사용하는경우
 # echo "\e[40;37m xxxxx \e[0m" 으로 사용할것 
 
