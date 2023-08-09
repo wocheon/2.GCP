@@ -1,5 +1,0 @@
-vi ~/.bashrc > 마지막 3줄 주석처리 해제 
-
-echo "source <(kubectl completion bash)" >> ~/.bashrc
-
-source ~/.bashrc 
