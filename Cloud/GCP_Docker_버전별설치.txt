@@ -1,0 +1,17 @@
+--docker 공식 repo 추가 
+yum install -y yum-utils device-mapper-persistent-data lvm2
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+--설치가능한 도커 버전 확인
+yum list docker-ce --showduplicates | sort -r
+
+--docker 최신버전 설치 
+yum install -y docker-ce.x86_64
+
+--버전확인 
+docker --version
+Docker version 24.0.5, build ced0996
+
+
+--docker-compose run 
+docker-compse up -d 
