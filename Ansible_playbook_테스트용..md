@@ -1,21 +1,29 @@
-ssh-keygen 후 ssh-copy-id 진행 
+# Ansible Playbook 예제
 
-cat /etc/ssh/sshd_config | egrep -e '(PubkeyAuthentication|PermitRootLogin|PasswordAuthentication)' | grep -v '#'
-###################################
-PubkeyAuthentication yes
-PermitRootLogin yes
-PasswordAuthentication yes
-###################################
-
+### Ansible Setting
+* ssh-keygen 후 ssh-copy-id 진행 <br><br>
+* SSH 설정 확인
+```bash
+ cat /etc/ssh/sshd_config | egrep -e '(PubkeyAuthentication|PermitRootLogin|PasswordAuthentication)' | grep -v '#'
+```
+>PubkeyAuthentication yes <br>
+PermitRootLogin yes	<br>
+PasswordAuthentication yes <br>
+</br>
+* 설정 변경
+ 
+```bash
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes'/g /etc/ssh/sshd_config 
 sed -i 's/PermitRootLogin no/PermitRootLogin yes'/g /etc/ssh/sshd_config 
-sed -i 's/PasswordAuthentication no/PasswordAuthentication yes'/g /etc/ssh/sshd_config 
+sed -i 's/PasswordAuthentication no/PasswordAuthentication yes'/g /etc/ssh/sshd_config
 systemctl restart sshd
+```
+</br>
 
-
-
-*vm template 용도
-
+***vm template 용**
+```bash
+sudo -i << EOF
+echo -e 'welcome1\nwelcome1' | /sbin/chpasswd
 sed -i 's/=enforcing/=disabled/g' /etc/selinux/config ; setenforce 0; systemctl disable firewalld --now;
 yum -y install httpd sshpass expect; systemctl enable  httpd --now 
 echo "test web : $(hostname -i)" > /var/www/html/index.html
@@ -27,22 +35,29 @@ HOSTIP=$(hostname -i)
 sshpass -p 'welcome1' ssh -T -o StrictHostKeyChecking=no root@192.168.1.100 "echo $HOSTIP >> /etc/ansible/hosts"
 mkdir /root/.ssh 
 sshpass -p 'welcome1' ssh -T -o StrictHostKeyChecking=no root@192.168.1.100 "cat /root/.ssh/id_rsa.pub" > /root/.ssh/authorized_keys
-#sudo -i 
-#echo -e 'welcome1\nwelcome1' | passwd
+EOF
+```
+</br>
 
+***
 
+</br>
 
+### Ansible Playbook
 
-*기본 커맨드 
-ansible all -m pung
+* 기본 커맨드
+ ```bash
+ansible all -m ping
 ansible all -m shell -a 'ls -lsa'
+```
 
+* Ansible_playbooks yml 파일
 
-*Ansible_playbooks
-(Command 예시 : ansible-playbook xxx.yml)
+**1. ping test**
 
-1. ping test
-[ping_test.yml]
+>ping_test.yml
+
+```bash
 ---
 -  name: ping test
    hosts: all
@@ -50,16 +65,20 @@ ansible all -m shell -a 'ls -lsa'
    tasks:
    - name: ping
      ping:
-	 
+```	 
+</br>
 
-2. shell script copy하여 실행 후 결과 출력 	 
-[shelltest.sh]
+**2. shell script copy하여 실행 후 결과 출력**
+
+>shelltest.sh
+```bash
 hostname > /root/res.txt
 hostname -i >> /root/res.txt
 df -Ph | grep /dev/sd >> /root/res.txt
+```
 
-
-[shelltest.yml]
+>shelltest.yml
+```bash
 ---
 -  name: shell_test
    hosts: all
@@ -77,11 +96,14 @@ df -Ph | grep /dev/sd >> /root/res.txt
      command: cat res.txt
      register: output
    - debug: var=output.stdout_lines
+```
+</br>
 
+**3. 신규유저 생성 후, wheel group 추가 및 패스워드 변경**
 
-3. 신규유저 생성 후, wheel group 추가 및 패스워드 변경
+>passwd_change.sh
 
-[passwd_change.sh]
+```bash
 #!/bin/bash
 user_name=$1
 user_passwd=$2
@@ -90,9 +112,11 @@ useradd $user_name
 echo $user_name:$user_passwd | /sbin/chpasswd
 passwd --expire $user_name
 usermod -G wheel $user_name
+```
 
+>passwd_change.yml
 
-[passwd_change.yml]
+```yaml
 ---
 -  name: passwd_change
    hosts: all
@@ -108,8 +132,4 @@ usermod -G wheel $user_name
        sh passwd_change.sh ciw0707 test1234
      register: output
    - debug: var=output.stdout_lines
-
-
-
-
-
+```
