@@ -205,7 +205,7 @@ docker run -d -it -p 8090:8080 --name web-app web-app
 ```
 <br>
 
-### pipeline 작성하여 배포 진행.
+### Jenkins Pipeline 작성하여 배포 진행.
 
 |환경|Local PC|>|Gitlab|>|Jenkins(maven)|>|Docker|
 |:------:|:------:|:------:|:------:|:------:|:------:|:------:|:------:|
