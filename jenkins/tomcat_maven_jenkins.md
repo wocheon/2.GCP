@@ -78,7 +78,7 @@ curl localhost:8080
 ```
 <br>
 
-* tomcat 서비스 등록 
+* Tomcat 서비스 등록 
 >vi /etc/systemd/system/tomcat.service
 ```bash
 [Unit]
