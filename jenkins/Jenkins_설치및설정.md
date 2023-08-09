@@ -5,13 +5,14 @@
 ```bash
 yum install -y wget maven git docker
 ```
-`JDK가 같이 설치되나 버전 문제로 인해 JDK 11로 변경 필요.`
+$\textcolor{orange}{\textsf{* Maven 설치 시, JDK가 같이 설치되나 버전 문제로 인해 JDK 11로 변경 필요.}}$ 
 
 ### jdk 버전 변경
 ```bash
 yum install -y java-11-openjdk-devel.x86_64
-update-alternatives --config java (11버전으로 변경)
+update-alternatives --config java
 ```
+- `JDK 버전을 11로 변경`
 
 ### 환경변수 설정
 ```bash
@@ -38,8 +39,10 @@ CLASSPATH=$JAVA_HOME/jre/lib:$JAVA_HOME/lib/tools.jar
 ```bash
 source /etc/profile 
 ```
-`(JDK는 Slave NODE에도 설치)`
+$\textcolor{orange}{\textsf{* JDK는 Slave NODE에도 설치. (추후 작업전 세팅을 위함)}}$ 
+
 <br>
+
 
 ## Jenkins 설치
 
@@ -55,7 +58,7 @@ yum install -y jenkins
 systemctl enable jenkins --now
 systemctl status jenkins
 ```
-$\textcolor{orange}{\textsf{*오류나면 jenkins -version 으로 확인해보기..}}$ 
+$\textcolor{orange}{\textsf{*오류나면 jenkins -version 등으로 확인해보기..}}$ 
 
 
 ### Jenkins 접속 확인
