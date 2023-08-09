@@ -220,7 +220,7 @@ certbot renew --force-renew --cert-name testdomainname.info-0001
 <br>
 
 ## Cerbot 인증서 자동갱신 스크립트
-$\textcolor{orange}{\textsf{* Script 폴더에 상세하게 작성한게 있으니 그걸로 사용할것.}}$   
+$\textcolor{orange}{\textsf{* 동일 위치에 상세하게 작성한게 있으니 그걸로 사용할것.}}$   
 
 >vi renew_cert.sh
 ```bash
