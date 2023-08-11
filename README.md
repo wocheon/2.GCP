@@ -7,12 +7,12 @@
 
 ## Cloud
 
-* OLD
-   * [GCP_OS별_vm초기설정용_스크립트.sh](GCP_OS별_vm초기설정용_스크립트.sh)
-   * GCP_외부주소_SSH접속방법
-   * GCP_인스턴스일정_권한부여.txt
+* `OLD`
+   * [GCP_OS별_vm초기설정용_스크립트.sh](Cloud/OLD/GCP_OS별_vm초기설정용_스크립트.sh)
+   * [GCP_외부주소_SSH접속방법](Cloud/OLD/GCP_외부주소_SSH접속방법)
+   * [GCP_인스턴스일정_권한부여.txt](Cloud/OLD/GCP_인스턴스일정_권한부여.txt)
 
-* Dockerfile 작성 요령.md
+* [Dockerfile 작성 요령.md](Dockerfile 작성 요령.md)
 * Docker_HAProxy_setting.md
 * Docker_버전별_설치.md
 * GCP_CloudConsole_관련내용정리.md
