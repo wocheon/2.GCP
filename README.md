@@ -1,11 +1,11 @@
 ## 2.Linux
 
-## Certbot(무료ssl인증서)
+## `Certbot(무료ssl인증서)`
 * [certbot_자동갱신용스크립트.sh](Certbot(무료ssl인증서)/HAProxy_certbot_SSL인증서적용.md)
 * [haproxy.cfg](Certbot(무료ssl인증서)/haproxy.cfg)
 * [HAProxy_certbot_SSL인증서적용.md](Certbot(무료ssl인증서)/HAProxy_certbot_SSL인증서적용.md)
 
-## Cloud
+## `Cloud`
 
 * `OLD`
    * [GCP_OS별_vm초기설정용_스크립트.sh](Cloud/OLD/GCP_OS별_vm초기설정용_스크립트.sh)
@@ -49,14 +49,14 @@
    * [sample.war](jenkins/Sample_warfile/sample.war)
    * [test.war](jenkins/Sample_warfile/test.war)
 
-## Scripts
+## `Scripts`
 * [echo 색깔지정 함수 .sh](Scripts/echo 색깔지정 함수 .sh)
 * [expect_자동로그인_스크립트.sh](Scripts/expect_자동로그인_스크립트.sh)
 * [KVM 인스턴스 생성 쉘스크립트.sh](Scripts/KVM 인스턴스 생성 쉘스크립트.sh)
 * [su_패스워드_변경스크립트_(sudo불가시).sh](Scripts/su_패스워드_변경스크립트_(sudo불가시).sh)
 * [WordPress 설치용 쉘스크립트 -CentOS7 기준.sh](Scripts/WordPress 설치용 쉘스크립트 -CentOS7 기준.sh)
 
-## tomcat
+## `tomcat`
  * [mariadb_contest.jsp](tomcat/mariadb_contest.jsp)
  * [tomcat_apache_연동(web-was).md](tomcat/tomcat_apache_연동(web-was).md)
  * [tomcat_db_연동(was-db).md](tomcat/tomcat_db_연동(was-db).md)
