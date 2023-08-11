@@ -159,7 +159,8 @@ sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
 
-### kubeadm init 으로 클러스터 초기화하기
+## K8S 클러스터 구성
+
 `Master node에서만 수행`
 
 * /etc/hosts 수정
@@ -169,16 +170,32 @@ sudo apt-mark hold kubelet kubeadm kubectl
 10.178.0.15	worker1
 ```
 
+### CNI 별 kubeadm init 
 
+* Flannel
+```
+kubeadm init --pod-network-cidr=10.244.0.0/16
+```
+* Flannel 사용 시 pod-network-cidr를 10.244.0.0/16 대역 사용
+
+* calico
+```
 kubeadm init --apiserver-advertise-address 10.178.0.14 --pod-network-cidr=192.168.0.0/16
-->CNI로 calico를 사용하려면 pod-network-cidr 는 192.168.0.0/16 로 고정
+```
+* calico 사용 시 pod-network-cidr를 192.168.0.0/16 대역 사용 <br>
+`GCP VM 대역을 192.168.0.0/16 사용중이므로 flannel과 동일한 대역으로 변경`
 
-##########################################################################
+
+### kubeadm init 결과
+
+```bash
 Your Kubernetes control-plane has initialized successfully!
 
 To start using your cluster, you need to run the following as a regular user:
 
-mkdir -p $HOME/.kube;sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config;sudo chown $(id -u):$(id -g) $HOME/.kube/config;export KUBECONFIG=/etc/kubernetes/admin.conf
+mkdir -p $HOME/.kube;
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config;
+sudo chown $(id -u):$(id -g) $HOME/.kube/config;
 
 Alternatively, if you are the root user, you can run:
 
@@ -192,60 +209,116 @@ Then you can join any number of worker nodes by running the following on each as
 
 kubeadm join 10.178.0.14:6443 --token 8lszl8.29tcsnpsxl1n8ex5 \
         --discovery-token-ca-cert-hash sha256:b5ea4609103a0f476b0e55e30c341b7fb913dfd1679fab1e8e4d67bec193a56c
-##########################################################################
+```
+* 아래 kubeadm join 구문을 사용하여 worker node에서 클러스터 Join
 
 
--Pod network add-on (CNI) 설치하기
-구성한 클러스터 내에 CNI (Container Network Interface)를 설치하여, Pod들이 서로 통신이 가능하도록 해줘야 합니다.
+## Pod network add-on (CNI) 설치하기
 
--master Node에서 실행
-kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.1/manifests/tigera-operator.yaml
-
-vim calico-resources.yaml
-##################################################################
-# This section includes base Calico installation configuration.
-# For more information, see: https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.Installation
-apiVersion: operator.tigera.io/v1
-kind: Installation
-metadata:
-  name: default
-spec:
-  # Configures Calico networking.
-  calicoNetwork:
-    # Note: The ipPools section cannot be modified post-install.
-    ipPools:
-    - blockSize: 26
-      cidr: 192.168.0.0/16
-      encapsulation: VXLANCrossSubnet
-      natOutgoing: Enabled
-      nodeSelector: all()
-
----
-
-# This section configures the Calico API server.
-# For more information, see: https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.APIServer
-apiVersion: operator.tigera.io/v1
-kind: APIServer 
-metadata: 
-  name: default 
-spec: {}
-##################################################################
+* 구성한 클러스터 내에 CNI (Container Network Interface)를 설치
+  - Pod들이 서로 통신이 가능하도록 설정
 
 
-$ sudo firewall-cmd --add-port=179/tcp --permanent
-$ sudo firewall-cmd --add-port=4789/udp --permanent
-$ sudo firewall-cmd --add-port=5473/tcp --permanent
-$ sudo firewall-cmd --add-port=443/tcp --permanent
-$ sudo firewall-cmd --add-port=6443/tcp --permanent
-$ sudo firewall-cmd --add-port=2379/tcp --permanent
-$ sudo firewall-cmd --reload
- 
+* CNI 별 특징 정리
 
-#kubectl 자동완성 설정 
- sudo yum install bash-completion -y
+|Provider|Network<br>Model|Route<br>Distribution|Network<br>Policy|Mesh|External<br>Database|Encryption|Ingress/Egress<br>Policies|Commercial<br>Support|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:
+|Calico|Layer 3|Yes|Yes|Yes|Etcd|Yes|Yes|Yes|
+|Canal|Layer 2<br>vxlan|N/A|Yes|No|Etcd|No|Yes|No|
+|Flannel|vxlan|No|No|No|None|No|No|No|
+|kopeio-networking|Layer 2|N/A|No|No|None|Yes|No|No|
+|kube-router|Layer 3|BGP|Yes|No|No|No|No|No|
+|romana|Layer 3|OSPF|Yes|No|Etcd|No|Yes|Yes|
+|Weave Net|Layer 2<br>vxlan|N/A|Yes|Yes|No|Yes|Yes|Yes|
+
+* 여러개의 CNI Plugin이 존재하나 이번에는 `Flannel`, `Calico`를 사용
+### Calico CNI 사용 시
+* Master Node에서 작업 진행
+
+* 참조 : [Calico 공식홈페이지 - Calico 설치 방법](https://docs.projectcalico.org/getting-started/kubernetes/self-managed-onprem/onpremises)
+### master Node에서 실행
+*  operator 설치
+```
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
+```
+* custom-resources 설치
+```
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml -O
+```
+
+* Containerd, Kubelet 재시작
+```bash
+systemctl restart containerd
+systemctl restart kubelet
+```
+
+
+* Node 상태및 pod 확인
+```bash
+$ kubectl get node,pod -n kube-system
+NAME              STATUS   ROLES           AGE   VERSION
+node/k8s-master   Ready    control-plane   58m   v1.27.4
+node/k8s-worker   Ready    <none>          58m   v1.27.4
+
+NAMESPACE          NAME                                           READY   STATUS    RESTARTS   AGE
+calico-apiserver   pod/calico-apiserver-f5c6c84bc-95thw           1/1     Running   0          57m
+calico-apiserver   pod/calico-apiserver-f5c6c84bc-j64hj           1/1     Running   0          57m
+calico-system      pod/calico-kube-controllers-6849ccfdfc-4vfsg   1/1     Running   0          57m
+calico-system      pod/calico-node-ldgjw                          1/1     Running   0          57m
+calico-system      pod/calico-node-slrtj                          1/1     Running   0          57m
+calico-system      pod/calico-typha-7dcd5d784c-dnmzn              1/1     Running   0          57m
+calico-system      pod/csi-node-driver-nk67l                      2/2     Running   0          57m
+calico-system      pod/csi-node-driver-svpr4                      2/2     Running   0          57m
+default            pod/dpl-nginx-777d8c7fbc-qjpkl                 1/1     Running   0          57m
+kube-system        pod/coredns-5d78c9869d-jj6jf                   1/1     Running   0          58m
+kube-system        pod/coredns-5d78c9869d-p65k9                   1/1     Running   0          58m
+kube-system        pod/etcd-k8s-master                            1/1     Running   5          58m
+kube-system        pod/kube-apiserver-k8s-master                  1/1     Running   5          58m
+kube-system        pod/kube-controller-manager-k8s-master         1/1     Running   5          58m
+kube-system        pod/kube-proxy-2vbg6                           1/1     Running   0          58m
+kube-system        pod/kube-proxy-rhv59                           1/1     Running   0          58m
+kube-system        pod/kube-scheduler-k8s-master                  1/1     Running   5          58m
+tigera-operator    pod/tigera-operator-5f4668786-22lwc            1/1     Running   0          57m
+
+```
+* firewalld 활성화시 포트 추가
+```bash
+$ firewall-cmd --add-port=179/tcp --permanent
+$ firewall-cmd --add-port=4789/udp --permanent
+$ firewall-cmd --add-port=5473/tcp --permanent
+$ firewall-cmd --add-port=443/tcp --permanent
+$ firewall-cmd --add-port=6443/tcp --permanent
+$ firewall-cmd --add-port=2379/tcp --permanent
+$ firewall-cmd --reload
+```
+
+### Flannel CNI 사용 시
+* Master, Worker 전체에서 작업 필요
+
+mkdir -p /run/flannel/
+echo "FLANNEL_NETWORK=10.244.0.0/16" >> /run/flannel/subnet.env
+echo "FLANNEL_SUBNET=10.244.1.0/24 " >> /run/flannel/subnet.env
+echo "FLANNEL_MTU=1450" >> /run/flannel/subnet.env
+echo "FLANNEL_IPMASQ=true" >> /run/flannel/subnet.env
+
+* Containerd, Kubelet 재시작
+```bash
+systemctl restart containerd
+systemctl restart kubelet
+```
+
+
+
+
+
+## kubectl 자동완성 설정 
+
+```bash
+sudo apt-get install bash-completion -y
 source /usr/share/bash-completion/bash_completion
 kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
 echo 'alias k=kubectl' >>~/.bashrc
 echo 'complete -o default -F __start_kubectl k' >>~/.bashrc
 source /usr/share/bash-completion/bash_completion
-# 터미널 다시 접속
+```
+* 완료 후, 터미널 다시 접속
