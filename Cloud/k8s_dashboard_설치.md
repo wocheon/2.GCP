@@ -26,7 +26,7 @@ spec:
   ports:
     - port: 443
       targetPort: 8443
-      nodePort: 30001
+      nodePort: 30001 # 추가
   selector:
     k8s-app: kubernetes-dashboard
   type: NodePort # 추가
