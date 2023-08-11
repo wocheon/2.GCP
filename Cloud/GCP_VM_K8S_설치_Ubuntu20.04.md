@@ -232,7 +232,8 @@ kubeadm join 10.178.0.14:6443 --token 8lszl8.29tcsnpsxl1n8ex5 \
 |Weave Net|Layer 2<br>vxlan|N/A|Yes|Yes|No|Yes|Yes|Yes|
 
 * 여러개의 CNI Plugin이 존재하나 이번에는 `Flannel`, `Calico`를 사용
-### Calico CNI 사용 시
+<br>
+### CNI Plugin - Calico 사용 시
 * Master Node에서 작업 진행
 
 * 참조 : [Calico 공식홈페이지 - Calico 설치 방법](https://docs.projectcalico.org/getting-started/kubernetes/self-managed-onprem/onpremises)
@@ -255,7 +256,7 @@ systemctl restart kubelet
 
 * Node 상태및 pod 확인
 ```bash
-$ kubectl get node,pod -n kube-system
+$ kubectl get node,pod --all-namespaces
 NAME              STATUS   ROLES           AGE   VERSION
 node/k8s-master   Ready    control-plane   58m   v1.27.4
 node/k8s-worker   Ready    <none>          58m   v1.27.4
@@ -291,25 +292,56 @@ $ firewall-cmd --add-port=6443/tcp --permanent
 $ firewall-cmd --add-port=2379/tcp --permanent
 $ firewall-cmd --reload
 ```
+<br>
 
-### Flannel CNI 사용 시
+### CNI Plugin - Flannel 사용 시
 * Master, Worker 전체에서 작업 필요
 
+* /run/flannel/subnet.env 설정
+```bash
 mkdir -p /run/flannel/
+
 echo "FLANNEL_NETWORK=10.244.0.0/16" >> /run/flannel/subnet.env
 echo "FLANNEL_SUBNET=10.244.1.0/24 " >> /run/flannel/subnet.env
 echo "FLANNEL_MTU=1450" >> /run/flannel/subnet.env
 echo "FLANNEL_IPMASQ=true" >> /run/flannel/subnet.env
+```
+>cat /run/flannel/subnet.env
+```bash
+FLANNEL_NETWORK=10.244.0.0/16
+FLANNEL_SUBNET=10.244.0.1/24
+FLANNEL_MTU=1410
+FLANNEL_IPMASQ=true
+```
+<br>
 
 * Containerd, Kubelet 재시작
 ```bash
 systemctl restart containerd
 systemctl restart kubelet
 ```
+<br>
 
+* Node 상태및 pod 확인
+```bash
+ $ kubectl get node,pod --all-namespaces
 
+NAME              STATUS   ROLES           AGE   VERSION
+node/k8s-master   Ready    control-plane   50s   v1.27.4
+node/k8s-worker   Ready    <none>          26s   v1.27.4
 
-
+NAMESPACE      NAME                                     READY   STATUS    RESTARTS   AGE
+kube-flannel   pod/kube-flannel-ds-72ntj                1/1     Running   0          23s
+kube-flannel   pod/kube-flannel-ds-kbl6j                1/1     Running   0          23s
+kube-system    pod/coredns-5d78c9869d-f422j             1/1     Running   0          32s
+kube-system    pod/coredns-5d78c9869d-lwd4s             1/1     Running   0          32s
+kube-system    pod/etcd-k8s-master                      1/1     Running   6          43s
+kube-system    pod/kube-apiserver-k8s-master            1/1     Running   6          48s
+kube-system    pod/kube-controller-manager-k8s-master   1/1     Running   6          43s
+kube-system    pod/kube-proxy-c72xf                     1/1     Running   0          32s
+kube-system    pod/kube-proxy-j5mb7                     1/1     Running   0          26s
+kube-system    pod/kube-scheduler-k8s-master            1/1     Running   6          47s
+```
 
 ## kubectl 자동완성 설정 
 
