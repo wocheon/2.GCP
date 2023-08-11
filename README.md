@@ -50,7 +50,7 @@
    * [test.war](jenkins/Sample_warfile/test.war)
 
 ## `Scripts`
-* [echo_색깔지정_함수 .sh](Scripts/echo_색깔지정_함수_.sh)
+* [echo_색깔지정_함수 .sh](Scripts/echo 색깔지정 함수 .sh)
 * [expect_자동로그인_스크립트.sh](Scripts/expect_자동로그인_스크립트.sh)
 * [KVM 인스턴스 생성 쉘스크립트.sh](Scripts/KVM_인스턴스_생성_쉘스크립트.sh)
 * [su_패스워드_변경스크립트_(sudo불가시).sh](Scripts/su_패스워드_변경스크립트_(sudo불가시).sh)
