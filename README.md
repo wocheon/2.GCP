@@ -1,9 +1,9 @@
 ## 2.Linux
 
 ## Certbot(무료ssl인증서)
-* [certbot_자동갱신용스크립트.sh](certbot_자동갱신용스크립트.sh)
-* [haproxy.cfg](haproxy.cfg)
-* [HAProxy_certbot_SSL인증서적용.md](HAProxy_certbot_SSL인증서적용.md)
+* [certbot_자동갱신용스크립트.sh](Certbot(무료ssl인증서)/HAProxy_certbot_SSL인증서적용.md)
+* [haproxy.cfg](Certbot(무료ssl인증서)/haproxy.cfg)
+* [HAProxy_certbot_SSL인증서적용.md](Certbot(무료ssl인증서)/HAProxy_certbot_SSL인증서적용.md)
 
 ## Cloud
 
