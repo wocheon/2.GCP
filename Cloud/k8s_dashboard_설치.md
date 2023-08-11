@@ -26,7 +26,7 @@ spec:
   ports:
     - port: 443
       targetPort: 8443
-	  nodePort: 30001
+      nodePort: 30001
   selector:
     k8s-app: kubernetes-dashboard
   type: NodePort # 추가
@@ -36,12 +36,12 @@ args:
             - --auto-generate-certificates
             - --enable-skip-login # 추가
             - --namespace=kubernetes-dashboard
-			- --token-ttl=0 # 추가
+            - --token-ttl=0 # 추가
 
 
 
 apiVersion: rbac.authorization.k8s.io/v1beta1 
-	# => apiVersion: rbac.authorization.k8s.io/v1 로 변경
+# => apiVersion: rbac.authorization.k8s.io/v1 로 변경
 
 ```
 
