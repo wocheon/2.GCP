@@ -133,8 +133,23 @@ rm -rf .git
 <br>
 
 ## Git Branch 관련
-### branch 변경 
+
+### branch 생성
+```bash
+ git branch test
 ```
+### branch 삭제
+```bash
+$ git branch -d test
+
+Deleted branch test (was e598c69).
+```
+### branch 명 변경
+```bash
+git branch -M main
+```
+### branch 변경 
+```bash
 git checkout [브랜치명]
 ```
 ### branch간 변경내역 merge 진행
