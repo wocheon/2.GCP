@@ -126,8 +126,8 @@ systemctl enable tomcat --now
  
 ### mariadb 설치
 ```bash
-yum install  mariadb-server.x86_64
-systemctl restart mariadb-server
+yum install -y mariadb-server.x86_64
+systemctl restart mariadb
 mysql_secure_installation
 ```
 
