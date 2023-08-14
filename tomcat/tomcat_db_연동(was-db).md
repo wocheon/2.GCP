@@ -162,6 +162,10 @@ cd $JAVA_HOME/lib
 wget https://dlm.mariadb.com/2896635/Connectors/java/connector-java-2.7.9/mariadb-java-client-2.7.9.jar
 cp mariadb-java-client-2.7.9.jar  $CATALINA_HOME/lib/
 ```
+## tomcat 재기동
+```bash
+systemctl restart tomcat
+```
 
 
 ## DB연결 확인
