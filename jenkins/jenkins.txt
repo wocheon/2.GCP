@@ -467,3 +467,9 @@ pipeline {
 > slave node에 docker container 생성 > 확인 
 
 
+
+
+build number 변경 
+/var/lib/jenkins/jobs/[job_name]/nextBuildNumber 파일 수정
+or 
+Plugin 설치 

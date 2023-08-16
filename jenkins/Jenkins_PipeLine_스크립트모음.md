@@ -222,3 +222,46 @@ pipeline {
 	}
 }
 ```
+
+## 6. scp_test
+```python
+pipeline {
+    agent any
+    stages {        
+        stage('Check Current Path') {
+            agent { label 'master' }
+            steps {
+                sh '''hostname 
+                      hostname -i 
+                      pwd
+                      ls -lrth
+                      '''
+            }
+        }              
+        stage('ssh test') {
+            agent { label 'slave' }
+            steps {
+                   sh '''
+                   pwd
+                   ls -lrth                   
+                   ssh -o StrictHostKeyChecking=no root@192.168.2.100 pwd
+                   echo "AA" >> testfile
+                   '''
+            }
+        }        
+        stage('scp test') {
+            agent { label 'master' }
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins_private_key', keyFileVariable: 'MY_SSH_KEY')]) {                
+                   sh '''
+                   pwd
+                   ls -lrth                   
+                   scp -i $MY_SSH_KEY testfile root@192.168.2.100:/root
+                   '''
+                }
+            }
+        }                
+    }
+}
+
+```
