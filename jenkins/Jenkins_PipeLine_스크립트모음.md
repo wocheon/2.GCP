@@ -265,3 +265,11 @@ pipeline {
 }
 
 ```
+
+# build number 변경 방법
+
+1. /var/lib/jenkins/jobs/[job_name]/nextBuildNumber 파일 수정 
+   
+2. Plugin 설치 -  Next Build Number Plugin
+    - 변경할 프로젝트의 모든 빌드기록 삭제 후 <br>
+     Set Next Build Number로 다음 빌드번호 지정
