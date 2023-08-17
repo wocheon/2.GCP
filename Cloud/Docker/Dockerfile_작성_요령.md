@@ -51,6 +51,23 @@ $\textcolor{orange}{\textsf{* CMD 와 ENTRYPOINT의 차이점 }}$
   - `ENTRYPOINT` : 컨테이너 실행시 무조건 실행
   - `CMD` : 컨테이너 실행시 docker run에서 동일 옵션이 있을 경우 실행되지않음
 
+<br>
+
+`* ENTRYPOINT/CMD 사용 - dockerfile기준`
+
+- 만약 ENTRYPOINT 를 사용하여 container 수행 명령을 정의한 경우,<br>
+해당 container가 수행될 때 반드시 ENTRYPOINT 에서 지정한 명령을 수행되도록 지정 된다.
+
+- 하지만, CMD를 사용하여 수행 명령을 경우에는,<br>
+container를 실행할때 인자값을 주게 되면 <br>
+ Dockerfile 에 지정된 CMD 값을 대신 하여 지정한 인자값으로 변경하여 실행되게 된다.
+
+- container가 수행될 때 변경되지 않을 실행 명령은 CMD 보다는 ENTRYPOINT 로 정의하는게 좋다.
+
+- 메인 명령어가 실행시 default option 인자 값은 CMD로 정의해 주는게 좋다.
+
+- ENTRYPOINT 와 CMD는 리스트 포맷 ( ["args1", "args2",...] )으로 정의해 주는게 좋다.
+
 ---
 
 
