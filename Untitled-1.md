@@ -117,3 +117,96 @@ PLAY RECAP *********************************************************************
 ### GCP 콘솔에서 확인 
 - 정상적으로 생성되면 VPC > IP 주소에서  고정 외부 IP `test-address1` 를 확인 가능
      - 할당되지않은 상태이므로 확인 후 삭제
+
+
+##  GCP - Ansible Dynamic Inventroy  연동
+
+### Inventory 디렉토리 생성
+
+```bash
+cd /etc/ansible/
+mkdir inventory
+mv /root/service-account.json inventory/
+```
+
+### GCP_Compute inventory Plugin 작성
+
+>vi gcp.yaml
+```yaml
+---
+plugin: gcp_compute
+projects:
+  - gcp-in-ca
+auth_kind: serviceaccount
+service_account_file: /etc/ansible/inventory/service-account.json
+filters:
+  - labels.사용자:wocheon07
+  #  - status = RUNNING
+keyed_groups:
+  - key: labels
+    prefix: Label
+  - key: status
+    prefix: State
+  - key: zone
+    prefix: Zone
+groups:
+  development: "'k8s' in (labels|list)"
+  staging: "'jenkins' in name"
+#hostnames:
+#  - name
+```
+
+### ansible 디렉토리 권한 변경
+
+```bash
+chmod -R 755 /etc/ansible
+```
+
+### ansible.cfg 파일 수정
+
+>vi /etc/ansible/ansible.cfg
+```bash
+[inventory]
+#enable inventory plugins, default: 'host_list', 'script', 'auto', 'yaml', 'ini', 'toml'
+enable_plugins = host_list, virtualbox, yaml, gcp_compute
+# 해당 라인 주석 해제 후 gcp_compute 추가
+```
+
+### ansible-inventory 확인
+```bash
+ansible-inventory -i gcp.yaml --graph
+
+@all:
+  |--@Label_k8s_master:
+  |  |--34.64.86.238
+  |--@Label_k8s_worker:
+  |  |--35.216.78.39
+  |--@Label_사용자_wocheon07:
+  |  |--34.22.77.236
+  |  |--34.64.135.230
+  |  |--34.64.86.238
+  |  |--35.216.78.39
+  |--@Label_용도_jenkins:
+  |  |--34.64.135.230
+  |--@Label_용도_k8s:
+  |  |--34.64.86.238
+  |  |--35.216.78.39
+  |--@State_RUNNING:
+  |  |--34.22.77.236
+  |--@State_TERMINATED:
+  |  |--34.64.135.230
+  |  |--34.64.86.238
+  |  |--35.216.78.39
+  |--@Zone_asia_northeast3_b:
+  |  |--34.64.86.238
+  |  |--35.216.78.39
+  |--@Zone_asia_northeast3_c:
+  |  |--34.22.77.236
+  |  |--34.64.135.230
+  |--@development:
+  |  |--34.64.86.238
+  |  |--35.216.78.39
+  |--@staging:
+  |  |--34.64.135.230
+  |--@ungrouped:
+```
