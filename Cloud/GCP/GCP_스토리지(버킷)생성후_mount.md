@@ -1,4 +1,8 @@
 # GCP - Cloud Storage Mount (gcsfuse)
+## Google Cloud Storage FUSE (gcsfuse)
+- Google에서 지원하는 오픈소스 제품
+-  Cloud Storage 버킷을 로컬 파일 시스템으로 마운트하고 액세스할 수 있게 해줌
+
 ## gcsfuse 설치 
 ### 참조
 - https://cloud.google.com/storage/docs/gcsfuse-mount?hl=ko
@@ -60,6 +64,7 @@ mkdir /GCP_Storage
 * 버킷 마운트 
 
 ```bash
+#파일모드로 마운트
 gcsfuse —file–mode=755 gcp-in-ca-test-bucket-wocheon07 /GCP_Storage
 gcsfuse -o allow_other gcp-in-ca-test-bucket-wocheon07 /GCP_Storage
 
