@@ -102,6 +102,7 @@ yum update google-cloud-sdk
 ```
 
 - 애플리케이션 기본 사용자 인증정보 생성
+    - 여기까지만 진행하면 사용가능함
 
 ```
 gcloud auth application-default login
@@ -112,6 +113,16 @@ gcloud auth application-default login
 ```
 gcloud auth login
 ```
+
+- 마운트 해제 후 재연결
+```
+fusermount -u /GCP_Storage
+
+mount -a
+
+```
+
+
 
 ###  권한 문제 발생 시 - 서비스 계정 인증
 
