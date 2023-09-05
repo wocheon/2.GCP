@@ -72,7 +72,7 @@ mount -t gcsfuse -o allow_other gcp-in-ca-test-bucket-wocheon07 /GCP_Storage
 mount -t gcsfuse -o rw,user  gcp-in-ca-test-bucket-wocheon07 /GCP_Storage
 ```
 
-### 권한 문제 발생 시
+### 권한 문제 발생 시 - API 권한 수정 
 - 인스턴스 API 권한 문제로 인해 읽기만 가능하며 쓰기는 불가능 한 상태로 마운트 됨
 - 변경방법 
     - 인스턴스 중지
@@ -80,6 +80,38 @@ mount -t gcsfuse -o rw,user  gcp-in-ca-test-bucket-wocheon07 /GCP_Storage
         - API 및 ID 관리 
             - 저장소 : 사용중지됨 > 전체로 변경
     - 인스턴스 재시작
+
+###  권한 문제 발생 시 - 애플리케이션 기본 사용자 인증
+
+- google-cloud-sdk 버전 확인
+
+```bash
+gcloud -v 
+# 최신 버전 : 444.0.0
+# gcloud 버전이 낮은 경우 로그인 불가
+```
+
+- google-cloud-sdk Update 진행
+```
+yum update google-cloud-sdk
+```
+
+- 애플리케이션 기본 사용자 인증정보 생성
+
+```
+gcloud auth application-default login
+```
+
+- Google Cloud CLI 승인
+
+```
+gcloud auth login
+```
+
+###  권한 문제 발생 시 - 서비스 계정 인증
+
+- 서비스 계정의 키 생성후 Json 파일을 업로드 
+- --key-file 옵션으로 json 파일을 지정하여 마운트 진행
 
 
 
