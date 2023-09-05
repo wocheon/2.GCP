@@ -72,6 +72,11 @@ mount -t gcsfuse -o allow_other gcp-in-ca-test-bucket-wocheon07 /GCP_Storage
 mount -t gcsfuse -o rw,user  gcp-in-ca-test-bucket-wocheon07 /GCP_Storage
 ```
 
+
+## 권한 문제 발생 시 
+
+- mount 후에 파일 생성이 불가한 경우 다음 방법 중 하나로 권한 인증 진행
+
 ### 권한 문제 발생 시 - API 권한 수정 
 - 인스턴스 API 권한 문제로 인해 읽기만 가능하며 쓰기는 불가능 한 상태로 마운트 됨
 - 변경방법 
