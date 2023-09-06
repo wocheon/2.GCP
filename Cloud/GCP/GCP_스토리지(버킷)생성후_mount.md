@@ -119,7 +119,6 @@ gcloud auth login
 fusermount -u /GCP_Storage
 
 mount -a
-
 ```
 
 
@@ -170,4 +169,24 @@ gcp-in-ca-test-bucket-wocheon07 /GCP_Storage gcsfuse rw,_netdev,allow_other,uid=
 - 적용확인
 ```
 mount -a
+```
+
+## mount 시 UID, GID 옵션 부여
+- mount 명령어에 UID와 GID를 부여하는 경우 <br>
+gcsfuse로 마운트된 디렉토리의 모든 권한은 uid,gid를 따라간다.
+
+- root에서 mount한 경우, root는 uid,gid 설정해도 접근이 가능 
+
+
+## gcsfuse로 연결된 디렉토리에 rsync 사용 시
+- rsync는 수정시간을 보존하려 하나 GCS 는 이를 지원하지 않음 
+- --update --no-times 옵션 부여
+    - --no-times 
+        - 파일의 mtime이 다르기 때문에 파일이 항상 동기화 되지않은것처럼 rsync에서 나타남
+    - --update 
+        - 대상이 최신인 경우 동기화한것으로 간주함
+
+```
+rsync -avhJ  --delete --bwlimit=10240 --log-file=rsync_test.log /root/rsync_test /GCP_Storage/rsync_test/ --notime --update --progress
+
 ```
