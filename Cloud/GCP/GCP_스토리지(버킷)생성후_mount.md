@@ -188,5 +188,4 @@ gcsfuse로 마운트된 디렉토리의 모든 권한은 uid,gid를 따라간다
 
 ```
 rsync -avhJ  --delete --bwlimit=10240 --log-file=rsync_test.log /root/rsync_test /GCP_Storage/rsync_test/ --notime --update --progress
-
 ```
