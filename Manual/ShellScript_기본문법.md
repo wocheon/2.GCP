@@ -727,7 +727,6 @@ $ command >> outfile
 $ command >& outfile
 $ command >>& outfile
 ```
-
 ## 파일 디스크립터 
 |파일디스크럽터|명칭|설명|
 |:--:|:-:|:-|
@@ -766,6 +765,26 @@ $ ls -l test.sh >> lslog 2> /dev/null
 
 $ cat lslog
 ----r--r--    1 42949672 42949672       214 Sep 11 15:31 test.sh
+```
+
+## exec
+- 스크립트 내에서 출력값을 전달하게끔 명시하는 방법
+- 리다이렉션 및 파일디스크럽터 사용가능함
+```bash
+#!/bin/bash
+exec >> test.log 2>&1
+echo "aa"
+echo "bb"
+asdf
+echo "cc"
+```
+
+>cat test.log
+```bash
+aa
+bb
+test.sh: line 4: asd : command not found
+cc
 ```
 ### 표준 입력 사용법 
 - EOF 
