@@ -27,6 +27,6 @@ frontend f_web
 backend web
         balance roundrobin
         option forwardfor
-        server web-1 192.168.1.10:80 check
-        server web-2 192.168.1.105:80 check backup
+        server web-1 192.168.1.10:80 check #master
+        server web-2 192.168.1.105:80 check backup #backup
 ```
