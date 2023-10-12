@@ -1,6 +1,9 @@
 # HAProxy 세팅 관련
 
 ## HAProxy Stat Page Settings
+- Url 설정시 접속 방법
+  - http://[haproxy 서버 주소]:8080/haproxy/stats
+
 ```bash
 listen stats *:8080
         mode http
@@ -13,6 +16,7 @@ listen stats *:8080
 ```
 
 ## HAProxy Failover Settings
+- backup으로 설정시 평소에는 대기하다가 master 서버에 장애 발생 시 트래픽을 전달
 ```bash
 frontend f_web
         bind *:80
