@@ -13,17 +13,17 @@ if [ $dup_chck -ne 0 ]; then
         mv $log_file $log_path/cert_renew_log_${today_date}_${file_num}.log
 fi
 
-echo -e "\E[;34m##JOB Start##\E[0m"
-echo  "##JOB Start##" >> $log_file
-echo "StartDate : " $(date) | tee -a $log_file
-echo "LogFile : ${log_file}"  | tee -a $log_file
-echo "" | tee -a $log_file
+exec > $log_file
+
+echo  "##JOB Start##"
+echo "StartDate : " $(date) 
+echo "LogFile : ${log_file}"  
+echo "" 
 
 
-echo -e "\E[;34m##Certificate Info##\E[0m"
-echo  "##Certificate Info##" >> $log_file
-certbot certificates | tee -a $log_file
-echo "" | tee -a $log_file
+echo  "##Certificate Info##"
+certbot certificates 
+echo "" 
 
 domain=$(tail -5 /var/log/letsencrypt/letsencrypt.log | grep Domains: | gawk -F': ' '{print $2}')
 expiry_date=$(tail -5 /var/log/letsencrypt/letsencrypt.log | grep VALID: | gawk -F'VALID: ' '{print $2}' | gawk '{print $1}')
@@ -35,42 +35,35 @@ if [ $expiry_date -gt 30 ]; then
         exit
 fi
 
-echo -e "\E[;34m##Port 80 Open Check##\E[0m"
-echo  "##Port 80 Open Check##" >> $log_file
+echo  "##Port 80 Open Check##"
 port_chck=$( netstat -ntlp | grep -w '0.0.0.0.0:80' | wc -l)
 
 if [ $port_chck -ne 0 ]; then
         process=$(netstat -tnlp | grep -w '0.0.0.0.0:80' | gawk '{print $7}' | gawk -F'/' '{print $2}')
-        echo "Port 80 Used by $process" | tee -a $log_file
-        echo "" | tee -a $log_file
+        echo "Port 80 Used by $process" 
+        echo "" 
 
-        echo -e "\E[;34m##Renew Certificate##\E[0m"
-        echo  "##Renew Certificate##" >> $log_file
-
-        echo -e "\E[;31msystemctl stop haproxy\E[0m"
-        echo "systemctl stop haproxy" >> $log_file
+        echo  "##Renew Certificate##"
+        echo "systemctl stop haproxy"
         systemctl stop haproxy
 
-        certbot renew  | tee -a $log_file
-#       certbot renew --force-renewal | tee -a $log_file
+        certbot renew  
+#       certbot renew --force-renewal 
 
-        echo -e "\E[;31msystemctl start haproxy\E[0m"
-        echo "systemctl start haproxy" >> $log_file
+        echo "systemctl start haproxy"
         systemctl start haproxy
 else
-        echo "Port 80 Usable" | tee -a $log_file
-        echo "" | tee -a $log_file
-        echo -e "\E[;34m##Renew Certificate##\E[0m"
-        echo  "##Renew Certificate##" >> $log_file
-        certbot renew  | tee -a $log_file
-#       certbot renew --force-renewal | tee -a $log_file
+        echo "Port 80 Usable" 
+        echo "" 
+        echo  "##Renew Certificate##"
+        certbot renew  
+#       certbot renew --force-renewal 
 
 fi
 
-echo "" | tee -a $log_file
-echo -e "\E[;34m##Certificate Info##\E[0m"
-echo  "##Certificate Info##" >> $log_file
-certbot certificates | tee -a $log_file
+echo "" 
+echo  "##Certificate Info##"
+certbot certificates 
 
 
 certpath="/etc/letsencrypt/live/${domain}/"
@@ -79,6 +72,5 @@ cat ${certpath}chain.pem >> ${certpath}site.pem
 cat ${certpath}privkey.pem >> ${certpath}site.pem
 
 
-echo "" | tee -a $log_file
-echo -e "\E[;34m##JOB Finished##\E[0m"
-echo "##JOB Finished##" >> $log_file
+echo "" 
+echo "##JOB Finished##"
