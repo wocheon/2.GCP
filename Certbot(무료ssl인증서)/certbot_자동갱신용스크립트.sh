@@ -5,6 +5,8 @@
 
 today_date=$(date '+%y%m%d')
 log_path='/var/log/letsencrypt/ssl_renew_log'
+mkdir -p $log_path
+
 log_file=$log_path/cert_renew_log_${today_date}.log
 dup_chck=$(find $log_path -name cert_renew_log_$today_date* | wc -l)
 
