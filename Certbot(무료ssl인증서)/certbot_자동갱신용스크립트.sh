@@ -29,8 +29,8 @@ domain=$(tail -5 /var/log/letsencrypt/letsencrypt.log | grep Domains: | gawk -F'
 expiry_date=$(tail -5 /var/log/letsencrypt/letsencrypt.log | grep VALID: | gawk -F'VALID: ' '{print $2}' | gawk '{print $1}')
 
 if [ $expiry_date -gt 30 ]; then
-        echo -e "\E[41;37m *Expiry Date : ${expiry_date} Days Remain \E[0m"
-        echo -e "\E[41;37m Renew Certificates Canceled  \E[0m"
+        echo "*Expiry Date : ${expiry_date} Days Remain"
+        echo "Renew Certificates Canceled"
 #        rm -f $log_file
         exit
 fi
