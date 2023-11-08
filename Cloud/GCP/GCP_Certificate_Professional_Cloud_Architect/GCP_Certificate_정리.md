@@ -7,6 +7,89 @@
 
 <br>
 
+# Storage & Database Resource
+
+##  Storage & Database 시나리오
+
+|서비스|시나리오|
+|:-:|:-:|
+|Cloud SQL|OLTP(온라인 트랜잭션 처리) 시스템에 전체 SQL 지원을 제공하는 관계형 데이터베이스가 필요한 경우|
+|Cloud Bigtable|ACID 트랜잭션을 위한 지원이 필요하지 않거나 데이터의 구조화 수준이 높지 않은 경우|
+|BigQuery|OLAP(온라인 분석 처리) 시스템을 위해 양방향 쿼리가 필요한 경우|
+|Cloud Storage|대용량 이미지 또는 영화와 같이 변하지 않는 대용량 blob을 저장해야 하는 경우|
+
+<br>
+
+## Cloud Storage 
+- 비정형 데이터를 저장하기 위한 관리형 서비스
+- 오브젝트의 버전 관리 기능 제공
+
+### Cloud Storage 관련 도구 
+- gsutil 
+    - 업로드 및 다운로드 지원 (cp/mv/gsync) 
+
+- gcsfuse
+    - Cloud Storage를 NFS 형태로 마운트 지원
+
+### Cloud Storage 클래스 
+- 클래스는 언제든지 변경이 가능
+
+|Class|용도|
+|:-:|:-:|
+|Autoclass|- 객체 수준 활동을 기준으로 각 객체를 Standard 또는 Nearline 클래스로 자동 전환<br>- 사용 빈도를 예측할 수 없는 경우 권장|
+|Standard|단기 스토리지 및 자주 액세스하는 데이터에 적합|
+|Nearline|백업 및 월 1회 미만 액세스하는 데이터에 적합|
+|Coldline|재해 복구 및 분기당 1회 미만 액세스하는 데이터에 적합|
+|Archive|연 1회 미만 액세스하는 데이터의 디지털 장기 보존에 적합|
+
+### Transfer Appliance
+- 사용자 데이터를 Cloud Storage에 업로드하는 Google 업로드 시설로 데이터를 전송하고 안전하게 배송할 수 있도록 하는 대용량 스토리지 기기
+
+- Cloud Storage에 대량데이터를 업로드 하는경우 사용
+
+- 작동 방식
+    - GCP에서 기기를 대여 > NFS형태로 마운트하여 데이터 복사 > GCP에 반환 > Cloud Storage에 업로드
+
+<br>
+
+## Cloud SQL 
+- 완전관리형 SQL 서버  
+- MySQL, PostgreSQL, SQL Server를 위한 완전 관리형의 관계형 데이터베이스 서비스
+  
+- 주요 특징 
+    - 완전 관리형
+    - 개방형 및 표준 기반
+    - 높은 비용 효율성
+    - 생성형 AI 지원
+    - 간편한 마이그레이션
+
+<br>
+
+## Cloud DataStore (Firestore)
+- 자동 확장, 고성능, 간편한 애플리케이션 개발을 위해 빌드된 NoSQL 문서 중심의 데이터베이스
+
+- 현재 최신버전의 Datastore인 Firestore로 업그레이드됨.
+
+- 주요 특징
+    - 테이블이나 행이없고 컬렉션으로 정리되는 문서에 데이터 저장 
+    - 모든 문서는 컬렉션에 저장되어야 함
+    - 각 문서에는 키-값 쌍이 포함됨
+
+>ex
+```js
+* users (Collection)
+    - alovelace (class)
+        first : "Ada"
+        last : "Lovelace"
+        born : 1815
+    - aturing (class)
+        first : "Alan"
+        last : "Turing"
+        born : 1912
+```
+
+<br>
+
 ## Big Table / Big Query
 
 ### Big Table
@@ -33,6 +116,15 @@
 - `bq show` : 모든 job 확인 가능
 - `bq ls`  : 각 job의 정보 확인 가능
 
+
+## Dataproc
+완전 관리형의 자동화된 빅데이터 오픈소스 소프트웨어
+ - Apache Hadoop, Apache Spark, Apache Flink, Presto, 30개 이상의 오픈소스 도구 및 프레임워크 제공
+
+
+
+
+
 <br>
 
 ## Cloud Data Loss Prevention(Cloud DLP)
@@ -49,6 +141,8 @@
 
 <br>
 
+
+# Compute Resource
 
 ## Anthos 
 -  Google의 클라우드 중심 컨테이너 플랫폼     
@@ -95,6 +189,56 @@
 
 
 <br>
+
+
+## Instance Group 
+- 관리형과 비관리형으로 구분
+
+### 비관리형 인스턴스 그룹
+- 다수의 인스턴스를 논리적으로 그룹화 한 것
+- 로드밸런서로 연결가능해짐
+
+### 관리형 인스턴스 그룹 (MIG)
+- 고가용성
+    - 실패한 VM 자동 복구 ( VM 중지/충돌/선점/삭제 시 재생성 )
+    - 애플리케이션 기반 자동 복구 ( Application 체크 및 미응답시 VM 재생성)
+    - 리전(멀티 영역) 노출 범위 (앱 부하 분산 가능)
+    - 부하 분산 ( 트래픽 분산 )
+
+- 확장성
+    - 인스턴스 오토스케일링 지원
+
+- 자동 업데이트
+    - 새로운 버전의 소프트웨어를 MIG에 배포가능 
+        - 순차적,카나리아 등의 업데이트 옵션 지원
+
+- 스테이트풀(Stateful) 워크로드 지원
+    - Stateful 구성을 사용하는 Application의 배포 빌드 및 작업  자동화 가능
+
+
+### MIG Update 유형
+#### Proactive Update Mode - 자동(사전형)
+- 업데이트 할 구성을 VM에 자동으로 적용 
+- 지정된 개수의 인스턴스를 중지 후, 신규 인스턴스를 띄워서 교체를 지원하는 형태
+
+#### Opportunistic Update Mode - 선택적(상황별)
+- 업데이트를 바로 진행하지 않고 수동으로 교체/새로고침/다시 시작 시 VM 업데이트를 진행
+
+#### Canary updates
+- 그룹의 인스턴스 하위 집합에 적용되는 업데이트
+
+- 중단을 유발할 수 있는 업데이트를 모든 인스턴스에 출시하는 대신 인스턴스의 임의 하위 집합에서 업그레이드를 테스트 가능
+
+- 업데이트가 잘 진행되지 않는 경우 인스턴스의 하위 집합만 롤백하면 사용자 작업 중단을 최소화
+
+- 업데이트해야 하는 인스턴스 수가 인스턴스 그룹의 전체 크기보다 적음
+
+- 추가 옵션을 구성하여 서비스에 대한 장애 수준을 제어가능
+
+<br>
+
+
+# Netowrk Resource
 
 ## Shared VPC / VPC Peering
 
