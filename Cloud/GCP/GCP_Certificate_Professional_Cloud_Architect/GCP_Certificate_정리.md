@@ -1,5 +1,31 @@
 # GCP PCA(Professional-Cloud-Architect) 
 
+## 목차
+- [관련용어 정리](#관련-용어-정리)
+
+1. `Google Cloud Resource`
+    - 1.1[ Organization/Folder/Project](#organization-folder-project)
+    - 1.2[ Stackdriver](#stackdriver)
+
+2. `Compute Resource`
+    - 2.1[ Instance Group](#instance-group)
+    - 2.2[ Anthos](#anthos)
+
+3. `Storage & Database Resource`
+    - 3.1[ Storage & Database 시나리오](#storage--database-시나리오)
+    - 3.2[ Cloud Storage](#cloud-storage)
+    - 3.3[ Cloud SQL ](#cloud-sql)
+    - 3.4[ Cloud DataStore (Firestore)](#cloud-datastore-firestore)
+    - 3.5[ Big Table / Big Query](#big-table--big-query)
+    - 3.6[ Dataproc](#dataproc)
+    - 3.7[ Dataflow](#dataflow)
+    - 3.8[ Cloud Data Loss Prevention(Cloud DLP)](#cloud-data-loss-preventioncloud-dlp)
+
+4. `Network Resource`
+    - 4.1[ Shared VPC / VPC Peering](#shared-vpc--vpc-peering)
+    - 4.2[ Cloud VPN / Cloud Interconnect ](#cloud-vpn--cloud-interconnect)
+
+
 ## 관련 용어 정리
 - CRM 
     - 고객 관계관리 
@@ -7,9 +33,10 @@
 
 <br>
 
-#  Google Cloud Resource 
+# Google Cloud Resource 
 
-## Organization / Folder / Project 
+
+## Organization, Folder, Project
 <img src="Resouces.PNG" height="500" width="50%">
 
 ### Organization 
@@ -88,28 +115,6 @@
 
 # Compute Resource
 
-## Anthos 
--  Google의 클라우드 중심 컨테이너 플랫폼     
-
--  퍼블릭 클라우드와 온프레미스 모두에 걸친 여러 환경의 Kubernetes 클러스터를 관리하고 정책을 일관성 있게 적용 가능
-
-- AWS나 애져(Azure) 같은 서드파티 클라우드에서 구동하는 워크로드도 관리 가능
-
-### Anthos Service mesh
-- Google에서 구현한 Istio 오픈소스 프로젝트
-
-- 마이크로 서비스를 위한 어플리케이션에 구축된 인프라 계층
-
-- Application 코드를 변경하지 않고도 서비스를 관리, 관찰, 보호 가능
-
-- 트래픽 관리에서 메시 원격 분석, 서비스 간 통신 보안까지 모든 면에서 서비스 제공을 간소화
-    - 운영 및 개발팀의 부담 감소
-
-- 모니터링, 네트워킹, 보안과 같은 서비스 실행과 관련된 일반적인 문제를 모두 고려
-    - 서비스 간의 통신을 제어, 표시, 관리
-
-<br>
-
 ## Instance Group 
 - 관리형과 비관리형으로 구분
 
@@ -134,7 +139,50 @@
 - 스테이트풀(Stateful) 워크로드 지원
     - Stateful 구성을 사용하는 Application의 배포 빌드 및 작업  자동화 가능
 
+
+### MIG Update 유형
+#### Proactive Update Mode - 자동(사전형)
+- 업데이트 할 구성을 VM에 자동으로 적용 
+- 지정된 개수의 인스턴스를 중지 후, 신규 인스턴스를 띄워서 교체를 지원하는 형태
+
+#### Opportunistic Update Mode - 선택적(상황별)
+- 업데이트를 바로 진행하지 않고 수동으로 교체/새로고침/다시 시작 시 VM 업데이트를 진행
+
+#### Canary updates
+- 그룹의 인스턴스 하위 집합에 적용되는 업데이트
+
+- 중단을 유발할 수 있는 업데이트를 모든 인스턴스에 출시하는 대신 인스턴스의 임의 하위 집합에서 업그레이드를 테스트 가능
+
+- 업데이트가 잘 진행되지 않는 경우 인스턴스의 하위 집합만 롤백하면 사용자 작업 중단을 최소화
+
+- 업데이트해야 하는 인스턴스 수가 인스턴스 그룹의 전체 크기보다 적음
+
+- 추가 옵션을 구성하여 서비스에 대한 장애 수준을 제어가능
+
 <br>
+
+## Anthos 
+-  Google의 클라우드 중심 컨테이너 플랫폼     
+
+-  퍼블릭 클라우드와 온프레미스 모두에 걸친 여러 환경의 Kubernetes 클러스터를 관리하고 정책을 일관성 있게 적용 가능
+
+- AWS나 애져(Azure) 같은 서드파티 클라우드에서 구동하는 워크로드도 관리 가능
+
+### Anthos Service mesh
+- Google에서 구현한 Istio 오픈소스 프로젝트
+
+- 마이크로 서비스를 위한 어플리케이션에 구축된 인프라 계층
+
+- Application 코드를 변경하지 않고도 서비스를 관리, 관찰, 보호 가능
+
+- 트래픽 관리에서 메시 원격 분석, 서비스 간 통신 보안까지 모든 면에서 서비스 제공을 간소화
+    - 운영 및 개발팀의 부담 감소
+
+- 모니터링, 네트워킹, 보안과 같은 서비스 실행과 관련된 일반적인 문제를 모두 고려
+    - 서비스 간의 통신을 제어, 표시, 관리
+
+<br>
+
 
 # Storage & Database Resource
 
@@ -151,7 +199,16 @@
 
 ## Cloud Storage 
 - 비정형 데이터를 저장하기 위한 관리형 서비스
+
 - 오브젝트의 버전 관리 기능 제공
+
+### Object Lifecycle Management
+
+- 오브젝트 객체 수명관리 제공 
+
+    - 객체의 TTL(Time To Live) 설정 
+    - 이전 버전 객체 보관 
+    - 각 객체별로 스토리지 클래스 변경 
 
 ### Cloud Storage 관련 도구 
 - gsutil 
@@ -170,6 +227,7 @@
 |Nearline|백업 및 월 1회 미만 액세스하는 데이터에 적합|
 |Coldline|재해 복구 및 분기당 1회 미만 액세스하는 데이터에 적합|
 |Archive|연 1회 미만 액세스하는 데이터의 디지털 장기 보존에 적합|
+
 
 ### Transfer Appliance
 - 사용자 데이터를 Cloud Storage에 업로드하는 Google 업로드 시설로 데이터를 전송하고 안전하게 배송할 수 있도록 하는 대용량 스토리지 기기
@@ -203,12 +261,11 @@
     - 테이블이나 행이없고 컬렉션으로 정리되는 문서에 데이터 저장 
     - 모든 문서는 컬렉션에 저장되어야 함
     - 각 문서에는 키-값 쌍이 포함됨
-
 >ex
 ```js
 * users (Collection)
     - alovelace (class)
-        first : "Ada"
+        first : "Ada" 
         last : "Lovelace"
         born : 1815
     - aturing (class)
@@ -217,6 +274,10 @@
         born : 1912
 ```
 
+### Entities, Properties, and Keys 
+- 항목 , 속성 , 키
+    - 항목에는 명명된 속성이 한 개 이상 있으며 각 속성에는 값이 한 개 이상 있을 수 있다
+    - 애플리케이션은 항목의 키를 사용하여 데이터베이스에서·개별 항목을 가져오거나 항목 키 또는 속성 값에 따라 쿼리를 실행하여 항목을 한 개 이상 검색 가능.
 <br>
 
 ## Big Table / Big Query
@@ -249,8 +310,60 @@
 
 
 ## Dataproc
-완전 관리형의 자동화된 빅데이터 오픈소스 소프트웨어
- - Apache Hadoop, Apache Spark, Apache Flink, Presto, 30개 이상의 오픈소스 도구 및 프레임워크 제공
+- 완전 관리형의 자동화된 빅데이터 오픈소스 소프트웨어
+    - Apache Hadoop, Apache Spark, Apache Flink, Presto, 30개 이상의 오픈소스 도구 및 프레임워크 제공
+
+
+<br>
+
+
+## Dataflow
+- 통합 스트림 및 일괄 데이터 처리를 대규모로 제공하는 Google Cloud 서비스
+
+- Apache Beam 프로젝트 기반으로 구축됨 
+
+- 하나 이상의 소스에서 읽은 데이터로 파이프라인을 만들고, 데이터를 변환하고, 데이터를 대상에 기록 가능
+
+
+- 주 사용 사례
+
+    - 데이터 이동
+        - 하위 시스템 간 데이터 수집 또는 복제
+
+    - BigQuery와 같은 데이터 웨어하우스로 데이터를 수집하는 ETL(추출, 변환, 로드) 워크플로
+    
+    - BI 대시보드 지원
+    
+    - 스트리밍 데이터에 실시간 ML 적용
+    
+    - 대규모 센서 데이터 또는 로그 데이터 처리
+
+
+- 특징 
+    - 관리형
+        - 완전 관리형 서비스로 제공
+
+    - 확장 가능
+        - 데이터가 병렬로 처리되므로 작업이 여러 VM에 걸쳐서 분산
+
+        - 자동 확장 수행 가능 
+            - 추가 작업자 VM을 프로비저닝 or 일부 작업자 VM을 종료
+
+        - 파이프라인의 특성을 기준으로 작업을 최적화
+
+    - 휴대성
+        -  Apache Beam을 통해 언어별 SDK를 사용해서 파이프라인을 작성 가능
+            - Java, Python, Go SDK는 물론 다중 언어 파이프라인이 지원
+        -  Apache Flink 또는 Apache Spark와 같은 다른 플랫폼에서 파이프라인을 실행시 코드를 재작성할 필요가 없음
+
+    - 유연성
+        - 일괄 처리에서 스트리밍으로 이동하거나 보다 복잡한 사용 사례로 전환할 때 필요에 따라 Dataflow 기반 솔루션을 확장 가능
+
+        -  일반적인 시나리오를 위한 템플릿 라이브러리를 제공
+            -  Apache Beam 프로그래밍 개념을 몰라도 템플릿을 배포 가능
+
+    - 관측 가능성
+        - Google Cloud 콘솔에서 Dataflow 모니터링 인터페이스를 통해 Dataflow 작업 상태를 모니터링 가능
 
 
 <br>
@@ -270,29 +383,7 @@
 <br>
 
 
-### MIG Update 유형
-#### Proactive Update Mode - 자동(사전형)
-- 업데이트 할 구성을 VM에 자동으로 적용 
-- 지정된 개수의 인스턴스를 중지 후, 신규 인스턴스를 띄워서 교체를 지원하는 형태
-
-#### Opportunistic Update Mode - 선택적(상황별)
-- 업데이트를 바로 진행하지 않고 수동으로 교체/새로고침/다시 시작 시 VM 업데이트를 진행
-
-#### Canary updates
-- 그룹의 인스턴스 하위 집합에 적용되는 업데이트
-
-- 중단을 유발할 수 있는 업데이트를 모든 인스턴스에 출시하는 대신 인스턴스의 임의 하위 집합에서 업그레이드를 테스트 가능
-
-- 업데이트가 잘 진행되지 않는 경우 인스턴스의 하위 집합만 롤백하면 사용자 작업 중단을 최소화
-
-- 업데이트해야 하는 인스턴스 수가 인스턴스 그룹의 전체 크기보다 적음
-
-- 추가 옵션을 구성하여 서비스에 대한 장애 수준을 제어가능
-
-<br>
-
-
-# Netowrk Resource
+# Network Resource
 
 ## Shared VPC / VPC Peering
 
