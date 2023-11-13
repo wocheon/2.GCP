@@ -91,12 +91,17 @@
 
 <br>
 
-## ospagent (운영 에이전트, 이전이름 : Stackdriver )
+## osp (operations suite)
+
 - Google Cloud 내부와 외부에서 실행되는 애플리케이션 및 시스템에 대한 통합 모니터링, 로깅, trace 관리형 서비스
 
 - GCP API에 대한 metric을 수집하고 이를 로그 형태로 저장하여 모니터링 등에 이용 가능
 
 - 측정항목(metrix), 로그, 이벤트를 인프라에서 집계하고 개발자와 운영자에게 제공하여 문제 발생 시 원인 분석에 도움 제공
+
+- 이전 명칭 : Stackdriver 
+
+- vm에 agent형태로 설치 하여 사용
 
 - stackdriver는 GCP뿐만 아니라 AWS, 온프레미스, 하이브리드 클라우드 등 실행 환경에 관계없이 <br> 모든 클라우드 계정 및 프로젝트 측정 항목, 로그, 메타 데이터를 포괄적으로 확인 가능 
 
