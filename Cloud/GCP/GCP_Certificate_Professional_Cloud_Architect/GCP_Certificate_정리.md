@@ -45,6 +45,13 @@
 
 - DUMP에서 해당 내용에 대한 케이스를 문제로 많이 출제함
 
+### LAMP stack 
+- 개발자가 웹 사이트와 웹 애플리케이션을 빌드하는 데 사용하는 4가지 소프트웨어 기술의 번들
+    - Linux(운영 체제)
+    - Apache(웹 서버)
+    - MySQL(데이터베이스 서버)
+    - PHP(프로그래밍 언어)
+
 <br>
 
 # Google Cloud Resource 
@@ -366,8 +373,8 @@
     - 일반적인 BigQuery 사용 사례에는 대규모 저장 및 분석 또는 OLAP(온라인 분석 처리)가 포함
 
 - 명령어     
-- `bq show` : 모든 job 확인 가능
-- `bq ls`  : 각 job의 정보 확인 가능
+    - `bq show` : 모든 job 확인 가능
+    - `bq ls`  : 각 job의 정보 확인 가능
 
 <br>
 
