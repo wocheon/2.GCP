@@ -177,3 +177,9 @@ systemctl restart sshd
 apt-get install -y git
 EOF
 ```
+
+## Cloud Shell로 현재 VM 목록 출력 
+```
+gcloud compute instances list --format="csv[separator='\t'](name,zone,machineType,INTERNAL_IP,EXTERNAL_IP,status)" --sort-by zone --filter="status=RUNNING"
+```
+
