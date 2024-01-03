@@ -3,6 +3,9 @@
 ## 개요 
 - 기존 GCE vm에서 사용중인 영구디스크를 Cloud Storage로 전환
 
+- Cloud Storage는 비용절약을 위해 가장 저렴한 Archaive Class를 사용 
+  - Standard Class를 제외한 나머지 클래스의 경우 버킷에 저장된 데이터를 읽거나 복사,이동,재작성시 비용이 발생하므로 주의 (Retrieval fees)
+  
 - 작업 대상 서버가 다수이므로 ansible,expect등의 자동화 툴을 사용하여 작업
 
 - 패키지 설치시 root권한이 필요함
