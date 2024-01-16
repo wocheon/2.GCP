@@ -496,6 +496,26 @@
     ```
     - 다음 형태로 연결된 VPC의 경우 A 와 C에대한 연결을 따로 지정하지 않으면 통신 불가
 
+### Direct Peering
+- 비즈니스 네트워크와 Google 에지 네트워크 사이에 다이렉트 피어링 연결을 설정
+    - 대용량 클라우드 트래픽을 교환 가능
+
+
+- 다이렉트 피어링과 Cloud Interconnect 비교
+
+|다이렉트 피어링|Cloud Interconnect|
+|:-|:-|
+|- Google Cloud에서 사용할 가능 <br> - Google Cloud가 필수는 아님|Google Cloud가 필요|
+|전체 Google Cloud 제품군에 온프레미스 네트워크에서 Google Workspace 및 Google API로의 직접 액세스를 제공|- Google Workspace 액세스 불가<br> - 온프레미스 네트워크에서 다른 모든 Google Cloud 제품 및 서비스에는 액세스 가능<br>-  온프레미스 호스트에서 비공개 Google 액세스를 사용하여 지원되는 API 및 서비스에도 액세스 가능|
+|- 내부 IP 주소만 있는 VPC 네트워크 리소스에 대한 직접 액세스는 제공 x|- 내부 IP 주소만 있는 VPC 네트워크 리소스에 대한 직접 액세스 제공|
+|설치 또는 유지보수 비용 없음|유지보수 비용 존재|
+|Google 에지 네트워크에 연결|Google 에지 네트워크에 연결| 
+|- Google Cloud 리소스를 사용 X <br>- 구성은 Google Cloud 프로젝트에 불투명|- Interconnect 연결, VLAN 첨부, Cloud Router와 등의 Google Cloud 리소스 사용|
+|- 온프레미스 네트워크의 목적지 IP 주소 범위 변경시 Google에 문의 필요|- Cloud Router와 공유하는 경로를 조정을 통해 온프레미스 네트워크의 목적지 IP 주소 범위를 변경가능|
+|- 온프레미스 네트워크로 가는 경로는 Google Cloud 프로젝트의 VPC 네트워크에 표시 X|- 온프레미스 네트워크로 가는 경로가 프로젝트의 Cloud Router에 의해 학습되고 VPC 네트워크에 커스텀 동적 경로로 적용|
+|- 서비스수준계약(SLA)을 제공 X|- 엔드 투 엔드 SLA를 제공|
+
+
 <br>
 
 ## Cloud VPN / Cloud Interconnect 
