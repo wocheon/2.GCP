@@ -8,6 +8,13 @@
 
 - httpd를 통해 웹 대시보드 제공
 
+## 설치 전 타임존 변경
+
+- ganglia 서버 및 모니터링 대상서버 타임존 일치하게 설정 후 작업진행
+
+```
+timedatectl set-timezone Asia/Seoul
+```
 
 ## Ganglia 서버 설정
 
