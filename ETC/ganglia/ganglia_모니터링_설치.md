@@ -26,7 +26,6 @@ yum install -y ganglia rrdtool ganglia-gmetad ganglia-gmond ganglia-web
 # Ubuntu의 경우 gmond는 ganglia-monitor로 설치
 ```
 ### Ganlia web 접근시 계정 설정 
-- 계정 설정 필요없는경우 생략가능
 ```
 htpasswd -c /etc/httpd/auth.basic admin
 ```
@@ -40,6 +39,15 @@ AuthName "Ganglia web UI"
 AuthBasicProvider file
 AuthUserFile "/etc/httpd/auth.basic"
 Require user admin
+</Location>
+```
+- 계정 로그인없이 바로 접속하는 경우
+```
+Alias /ganglia /usr/share/ganglia
+<Location /ganglia>
+    Order deny,allow
+    Allow from all
+    Require all granted
 </Location>
 ```
 
@@ -98,17 +106,6 @@ systemctl restart httpd gmetad gmond
         - admin/admin
 
 
-### 웹 접속 시 오류 처리
-- 다음과 같은 오류 발생시 해결 방법
-```bash
-There was an error collecting ganglia data (127.0.0.1:8652): fsockopen error: Permission denied 
-```
-
-- ganglia서버내에서 해당 명령어 입력 후 재접속
-```bash
-setsebool -P httpd_can_network_connect 1
-```
-
 ## 모니터링 대상 서버 설정
 
 - gmond agnet 설치
@@ -157,3 +154,61 @@ systemctl enable gmond --now
 ```
 
 - 웹 대시보드에 접속 후 정상적으로 올라오는지 확인
+
+
+### 웹 접속 시 오류 처리
+- 다음과 같은 오류 발생시 해결 방법
+```bash
+There was an error collecting ganglia data (127.0.0.1:8652): fsockopen error: Permission denied 
+```
+
+- gmetad 서비스 상태 확인 
+```bash
+systemctl status gmetad
+â— gmetad.service - Ganglia Meta Daemon
+   Loaded: loaded (/usr/lib/systemd/system/gmetad.service; disabled; vendor preset: disabled)
+   Active: failed (Result: exit-code) since Thu 2024-02-08 14:14:53 KST; 22s ago
+  Process: 2056 ExecStart=/usr/sbin/gmetad -d 1 (code=exited, status=1/FAILURE)
+ Main PID: 2056 (code=exited, status=1/FAILURE)
+
+Feb 08 14:14:53 gcp-ansible-test systemd[1]: Started Ganglia Meta Daemon.
+Feb 08 14:14:53 gcp-ansible-test gmetad[2056]: Sources are ...
+Feb 08 14:14:53 gcp-ansible-test gmetad[2056]: Source: [cluster-01, step 15] has 1 sources
+Feb 08 14:14:53 gcp-ansible-test gmetad[2056]: 127.0.0.1
+Feb 08 14:14:53 gcp-ansible-test gmetad[2056]: Data thread 140454769583872 is monitoring [cluster-01] data source
+Feb 08 14:14:53 gcp-ansible-test gmetad[2056]: 127.0.0.1
+Feb 08 14:14:53 gcp-ansible-test gmetad[2056]: Unable to mkdir(/var/lib/ganglia/rrds/cluster-01/gcp-ansible-test.asia-northeast3-c.c.gcp-in-ca.internal): Permission denied
+#! /var/lib/ganglia/rrds/cluster-01에 디렉토리 생성이 불가하여 서비스 기동 불가
+Feb 08 14:14:53 gcp-ansible-test systemd[1]: gmetad.service: main process exited, code=exited, status=1/FAILURE
+Feb 08 14:14:53 gcp-ansible-test systemd[1]: Unit gmetad.service entered failed state.
+Feb 08 14:14:53 gcp-ansible-test systemd[1]: gmetad.service failed.
+```
+
+
+- 해당 디렉토리 권한 확인 
+```
+ll /var/lib/ganglia/rrds/cluster-01
+total 8
+drwxr-xr-x. 2 nobody nobody 4096 Feb  8 11:27 gcp-ansible-test
+drwxr-xr-x. 2 nobody nobody 4096 Feb  8 11:27 __SummaryInfo__
+```
+- 권한 재설정 및 프로세스 재시작
+```bash
+$ chown -R ganglia:ganglia /var/lib/ganglia
+$ systemctl restart gmetad
+$ systemctl status gmetad
+gmetad.service - Ganglia Meta Daemon
+   Loaded: loaded (/usr/lib/systemd/system/gmetad.service; disabled; vendor preset: disabled)
+   Active: active (running) since Thu 2024-02-08 14:16:12 KST; 1s ago
+ Main PID: 2080 (gmetad)
+   CGroup: /system.slice/gmetad.service
+           â””â”€2080 /usr/sbin/gmetad -d 1
+
+Feb 08 14:16:12 gcp-ansible-test systemd[1]: Started Ganglia Meta Daemon.
+Feb 08 14:16:12 gcp-ansible-test gmetad[2080]: Sources are ...
+Feb 08 14:16:12 gcp-ansible-test gmetad[2080]: Source: [cluster-01, step 15] has 1 sources
+Feb 08 14:16:12 gcp-ansible-test gmetad[2080]: 127.0.0.1
+Feb 08 14:16:12 gcp-ansible-test gmetad[2080]: Data thread 140076934088448 is monitoring [cluster-01] data source
+Feb 08 14:16:12 gcp-ansible-test gmetad[2080]: 127.0.0.1
+# 정상 기동확인
+```
