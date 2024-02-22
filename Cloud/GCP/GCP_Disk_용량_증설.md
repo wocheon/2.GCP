@@ -236,3 +236,172 @@ tmpfs          tmpfs     494M     0  494M   0% /sys/fs/cgroup
 tmpfs          tmpfs      99M     0   99M   0% /run/user/1001
 /dev/sdb1      ext4       15G   41M   14G   1% /data001
 ```
+
+
+### MBR to GPT 로 변환 후 사이즈 증설하기 (2TB이상 디스크 증설 시)
+- 2TB이상 디스크를 증설하는 경우 파티션 유형이 MBR로 되어있는지 확인이 필요함
+    - MBR 파티션의 경우 최대 크기가 2TB로 제한되기 때문
+
+- MBR 파티션의 크기를 2TB이상으로 올려야한다면 gpt파티션으로 변경하는 작업이 필요
+
+#### 작업순서
+- 순서대로 진행하지않으면 파티션이 깨질수도있으니 반드시 순서대로 진행
+
+1. 파티션 유형 확인
+2. gdisk 설치 확인
+3. 디스크 스냅샷 작성
+4. 디스크 여유공간 확보
+5. gdisk로 파티션 유형을 변경 (MBR to GPT)
+6. growpart로 기존 디스크에 추가 공간 할당
+7. 디스크 포맷에 따라 파티션 확장 진행
+
+
+- `1. 파티션 유형 확인`
+```bash
+[root@gcp-ansible-test ~]$ parted -l
+
+Model: Google PersistentDisk (scsi)
+Disk /dev/sdb: 10.7GB
+Sector size (logical/physical): 512B/4096B
+Partition Table: msdos #msdos = MBR 파티션
+Disk Flags:
+
+Number  Start   End     Size    Type     File system  Flags
+ 1      1049kB  10.7GB  10.7GB  primary  ext4
+```
+
+- `2. gdisk 설치확인`
+    - gcp vm에는 기본설치됨
+```
+[root@gcp-ansible-test ~]$ rpm -qa | grep gdisk
+gdisk-0.8.10-3.el7.x86_64
+```
+
+- `3. 디스크 스냅샷 작성` 
+    - 디스크 파티션 유형변경 시 문제가 발생하면 마운트가 불가하거나 파일이 꺠지는 불상사가 발생할 수 있으므로 작업 시작전 항상 디스크 스냅샷을 작성 후 진행할 것
+
+- `4. 디스크 용량 증설`
+    - 추가로 증설할 사이즈만큼 디스크를 증설
+
+    - 증설 후 바로 늘리지 말것 
+        
+        - MBR 파티션은 시작부분만을 사용하여 파티션 테이블을 사용하나 <br> GPT파티션은 양쪽끝을 모두 사용함
+        
+        - 따라서 마지막 파티션을 최소 33블록 이상 줄여야 변환이 가능
+            - 512바이트 블록으로 가정하면 16,896 바이트
+
+        - 한마디로 디스크에 추가공간이 없다면 MBR to GPT는 불가능
+
+- `* 파티션 공간 부족시 발생에러`
+```
+gdisk /dev/sdb
+GPT fdisk (gdisk) version 0.8.10
+
+Partition table scan:
+  MBR: MBR only
+  BSD: not present
+  APM: not present
+  GPT: not present
+
+
+***************************************************************
+Found invalid GPT and valid MBR; converting MBR to GPT format
+in memory. THIS OPERATION IS POTENTIALLY DESTRUCTIVE! Exit by
+typing 'q' if you don't want to convert your MBR partitions
+to GPT format!
+***************************************************************
+
+
+Warning! Secondary partition table overlaps the last partition by
+33 blocks!
+You will need to delete this partition or resize it in another utility.
+```
+
+- `5. gdisk로 파티션 유형을 변경 (MBR to GPT)`
+
+- gdisk 실행후 파티션 유형 변경
+```
+[root@gcp-ansible-test ~]# gdisk /dev/sdb
+GPT fdisk (gdisk) version 0.8.10
+
+Partition table scan:
+  MBR: MBR only
+  BSD: not present
+  APM: not present
+  GPT: not present
+
+
+***************************************************************
+Found invalid GPT and valid MBR; converting MBR to GPT format
+in memory. THIS OPERATION IS POTENTIALLY DESTRUCTIVE! Exit by
+typing 'q' if you don't want to convert your MBR partitions
+to GPT format!
+***************************************************************
+
+
+Command (? for help): w
+
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+
+Do you want to proceed? (Y/N): Y
+OK; writing new GUID partition table (GPT) to /dev/sdb.
+Warning: The kernel is still using the old partition table.
+The new table will be used at the next reboot.
+The operation has completed successfully.
+```
+
+
+- 파티션 유형 변경 확인
+```bash
+[root@gcp-ansible-test ~]$ parted -l
+Model: Google PersistentDisk (scsi)
+Disk /dev/sdb: 10.7GB
+Sector size (logical/physical): 512B/4096B
+Partition Table: gpt # GPT로 변경됨
+Disk Flags:
+
+Number  Start   End     Size    File system  Name              Flags
+ 1      1049kB  10.7GB  10.7GB  ext4         Linux filesystem
+```
+
+
+
+6. growpart로 기존 디스크에 추가 공간 할당
+
+```
+[root@gcp-ansible-test ~]# growpart /dev/sdb 1
+CHANGED: partition=1 start=2048 old: size=16777216 end=16779264 new: size=20969438 end=20971486
+```
+
+7. 디스크 포맷에 따라 파티션 확장 진행
+```
+[root@gcp-ansible-test ~]# resize2fs /dev/sdb1
+resize2fs 1.42.9 (28-Dec-2013)
+Filesystem at /dev/sdb1 is mounted on /data001; on-line resizing required
+old_desc_blocks = 1, new_desc_blocks = 2
+The filesystem on /dev/sdb1 is now 2621179 blocks long.
+```
+
+- 결과 확인
+
+```
+[root@gcp-ansible-test ~]# lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0   24G  0 disk
+├─sda1   8:1    0  200M  0 part /boot/efi
+└─sda2   8:2    0 23.8G  0 part /
+sdb      8:16   0   10G  0 disk
+└─sdb1   8:17   0   10G  0 part /data001
+[root@gcp-ansible-test ~]# df -Th
+Filesystem                      Type          Size  Used Avail Use% Mounted on
+devtmpfs                        devtmpfs      1.9G     0  1.9G   0% /dev
+tmpfs                           tmpfs         1.9G     0  1.9G   0% /dev/shm
+tmpfs                           tmpfs         1.9G  8.5M  1.9G   1% /run
+tmpfs                           tmpfs         1.9G     0  1.9G   0% /sys/fs/cgroup
+/dev/sda2                       xfs            24G  9.6G   15G  40% /
+/dev/sda1                       vfat          200M   12M  189M   6% /boot/efi
+gcp-in-ca-test-bucket-wocheon07 fuse.gcsfuse  1.0P     0  1.0P   0% /share
+tmpfs                           tmpfs         379M     0  379M   0% /run/user/1001
+/dev/sdb1                       ext4          9.8G   36M  9.2G   1% /data001
+```
