@@ -108,6 +108,13 @@ yum install -y git curl wget bash-completion
 - 시작스크립트와 동일하게 비 bash 스크립트 사용가능 
     - 스크립트 상단에 shebang 추가필요 ex) #!/usr/bin/python
 
+    - 메타데이터 사용예시 
+
+        |키|값|
+        |:-|:-|
+        |shutdown-script-url|https://storage.googleapis.com/BUCKET/FILE|
+        |shutdown-script-url|gs://BUCKET/FILE|    
+
 ### 종료 스크립트 사용시 유의사항
 
 - 종료 스크립트는 인스턴스가 중지되기 전에 제한된 시간 안에 실행이 끝나야함
@@ -157,3 +164,6 @@ tar -cvf ${hostnm}_${today}.tar /root/*
 
 gsutil mv ${hostnm}_${today}.tar gs://gcp-in-ca-test-bucket-wocheon07/backup/vm_backups/
 ```
+
+- 메타데이터로 등록 후 확인
+shutdown-script-url - gs://gcp-in-ca-test-bucket-wocheon07/backup/backup_to_gcpbucket.sh
