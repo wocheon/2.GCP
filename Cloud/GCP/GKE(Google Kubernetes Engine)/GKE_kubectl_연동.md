@@ -1,303 +1,92 @@
-# 1. 최신 버전 google-cloud-cli (google-cloud-sdk) 설치
+- 로컬 서버에서 kubectl 로 gke를 컨트롤 하는 방법
+
+## gcp - kubectl 연동
+
+1. vm의 Cloud API 액세스 범위를 모든 Cloud API에 대한 전체 액세스 허용 으로 변경
+    - 중지 후 변경하여 재부팅 필요
+
+2. google-cloud-sdk 최신버전 설치
+- https://cloud.google.com/sdk/docs/install?hl=ko#linux
 ```
-[root@gcp-ansible-test ~]# curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-461.0.0-linux-x86_64.tar.gz
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100  190M  100  190M    0     0  26.3M      0  0:00:07  0:00:07 --:--:-- 28.9M
-[root@gcp-ansible-test ~]# tar -xf google-cloud-cli-461.0.0-linux-x86_64.tar.gz
-[root@gcp-ansible-test ~]# ./google-cloud-sdk/install.sh
-Welcome to the Google Cloud CLI!
-WARNING: You appear to be running this script as root. This may cause
-the installation to be inaccessible to users other than the root user.
-
-To help improve the quality of this product, we collect anonymized usage data
-and anonymized stacktraces when crashes are encountered; additional information
-is available at <https://cloud.google.com/sdk/usage-statistics>. This data is
-handled in accordance with our privacy policy
-<https://cloud.google.com/terms/cloud-privacy-notice>. You may choose to opt in this
-collection now (by choosing 'Y' at the below prompt), or at any time in the
-future by running the following command:
-
-    gcloud config set disable_usage_reporting false
-
-Do you want to help improve the Google Cloud CLI (y/N)?  Y
-
-
-Your current Google Cloud CLI version is: 461.0.0
-The latest available version is: 467.0.0
-
-┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                     Components                                                     │
-├──────────────────┬──────────────────────────────────────────────────────┬──────────────────────────────┬───────────┤
-│      Status      │                         Name                         │              ID              │    Size   │
-├──────────────────┼──────────────────────────────────────────────────────┼──────────────────────────────┼───────────┤
-│ Update Available │ Google Cloud CLI Core Libraries                      │ core                         │  22.8 MiB │
-│ Not Installed    │ App Engine Go Extensions                             │ app-engine-go                │   4.7 MiB │
-│ Not Installed    │ Appctl                                               │ appctl                       │  21.0 MiB │
-│ Not Installed    │ Artifact Registry Go Module Package Helper           │ package-go-module            │   < 1 MiB │
-│ Not Installed    │ Cloud Bigtable Command Line Tool                     │ cbt                          │  16.5 MiB │
-│ Not Installed    │ Cloud Bigtable Emulator                              │ bigtable                     │   7.1 MiB │
-│ Not Installed    │ Cloud Datastore Emulator                             │ cloud-datastore-emulator     │  36.2 MiB │
-│ Not Installed    │ Cloud Firestore Emulator                             │ cloud-firestore-emulator     │  44.4 MiB │
-│ Not Installed    │ Cloud Pub/Sub Emulator                               │ pubsub-emulator              │  63.3 MiB │
-│ Not Installed    │ Cloud Run Proxy                                      │ cloud-run-proxy              │  13.3 MiB │
-│ Not Installed    │ Cloud SQL Proxy                                      │ cloud_sql_proxy              │   7.8 MiB │
-│ Not Installed    │ Cloud Spanner Emulator                               │ cloud-spanner-emulator       │  36.0 MiB │
-│ Not Installed    │ Cloud Spanner Migration Tool                         │ harbourbridge                │  20.9 MiB │
-│ Not Installed    │ Google Container Registry's Docker credential helper │ docker-credential-gcr        │   1.8 MiB │
-│ Not Installed    │ Kustomize                                            │ kustomize                    │   4.3 MiB │
-│ Not Installed    │ Log Streaming                                        │ log-streaming                │  13.9 MiB │
-│ Not Installed    │ Minikube                                             │ minikube                     │  35.4 MiB │
-│ Not Installed    │ Nomos CLI                                            │ nomos                        │  28.7 MiB │
-│ Not Installed    │ On-Demand Scanning API extraction helper             │ local-extract                │  14.4 MiB │
-│ Not Installed    │ Skaffold                                             │ skaffold                     │  23.4 MiB │
-│ Not Installed    │ Spanner migration tool                               │ spanner-migration-tool       │  23.5 MiB │
-│ Not Installed    │ Terraform Tools                                      │ terraform-tools              │  66.1 MiB │
-│ Not Installed    │ anthos-auth                                          │ anthos-auth                  │  21.8 MiB │
-│ Not Installed    │ config-connector                                     │ config-connector             │  56.7 MiB │
-│ Not Installed    │ enterprise-certificate-proxy                         │ enterprise-certificate-proxy │   8.6 MiB │
-│ Not Installed    │ gcloud Alpha Commands                                │ alpha                        │   < 1 MiB │
-│ Not Installed    │ gcloud Beta Commands                                 │ beta                         │   < 1 MiB │
-│ Not Installed    │ gcloud app Java Extensions                           │ app-engine-java              │ 125.9 MiB │
-│ Not Installed    │ gcloud app Python Extensions                         │ app-engine-python            │   8.4 MiB │
-│ Not Installed    │ gcloud app Python Extensions (Extra Libraries)       │ app-engine-python-extras     │  31.5 MiB │
-│ Not Installed    │ gke-gcloud-auth-plugin                               │ gke-gcloud-auth-plugin       │   7.9 MiB │
-│ Not Installed    │ kpt                                                  │ kpt                          │  14.4 MiB │
-│ Not Installed    │ kubectl                                              │ kubectl                      │   < 1 MiB │
-│ Not Installed    │ kubectl-oidc                                         │ kubectl-oidc                 │  21.8 MiB │
-│ Not Installed    │ pkg                                                  │ pkg                          │           │
-│ Installed        │ BigQuery Command Line Tool                           │ bq                           │   1.6 MiB │
-│ Installed        │ Bundled Python 3.11                                  │ bundled-python3-unix         │  74.9 MiB │
-│ Installed        │ Cloud Storage Command Line Tool                      │ gsutil                       │  11.3 MiB │
-│ Installed        │ Google Cloud CRC32C Hash Tool                        │ gcloud-crc32c                │   1.2 MiB │
-└──────────────────┴──────────────────────────────────────────────────────┴──────────────────────────────┴───────────┘
-To install or remove components at your current SDK version [461.0.0], run:
-  $ gcloud components install COMPONENT_ID
-  $ gcloud components remove COMPONENT_ID
-
-To update your SDK installation to the latest version [467.0.0], run:
-  $ gcloud components update
-
-
-Modify profile to update your $PATH and enable shell command completion?
-
-Do you want to continue (Y/n)?  Y
-
-The Google Cloud SDK installer will now prompt you to update an rc file to bring the Google Cloud CLIs into your environment.
-
-Enter a path to an rc file to update, or leave blank to use [/root/.bashrc]:
-Backing up [/root/.bashrc] to [/root/.bashrc.backup].
-[/root/.bashrc] has been updated.
-
-==> Start a new shell for the changes to take effect.
-
-
-For more information on how to get started, please visit:
-  https://cloud.google.com/sdk/docs/quickstarts
-
-
-[root@gcp-ansible-test ~]#
-
-
+curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-461.0.0-linux-x86_64.tar.gz
+tar -xf google-cloud-cli-461.0.0-linux-x86_64.tar.gz
+./google-cloud-sdk/install.sh
 ```
 
-# 3 kubectl 설치 
-
+3. kubectl 설치
+- https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl?hl=ko#run_against_a_specific_cluster
 ```
 gcloud components install kubectl
-
-
-Your current Google Cloud CLI version is: 461.0.0
-Installing components from version: 461.0.0
-
-┌─────────────────────────────────────────────┐
-│     These components will be installed.     │
-├────────────────────────┬─────────┬──────────┤
-│          Name          │ Version │   Size   │
-├────────────────────────┼─────────┼──────────┤
-│ gke-gcloud-auth-plugin │   0.5.8 │  7.9 MiB │
-│ kubectl                │  1.27.9 │  < 1 MiB │
-│ kubectl                │  1.27.9 │ 99.9 MiB │
-└────────────────────────┴─────────┴──────────┘
-
-For the latest full release notes, please visit:
-  https://cloud.google.com/sdk/release_notes
-
-Do you want to continue (Y/n)?  Y
-
-╔════════════════════════════════════════════════════════════╗
-╠═ Creating update staging area                             ═╣
-╠════════════════════════════════════════════════════════════╣
-╠═ Installing: gke-gcloud-auth-plugin                       ═╣
-╠════════════════════════════════════════════════════════════╣
-╠═ Installing: gke-gcloud-auth-plugin                       ═╣
-╠════════════════════════════════════════════════════════════╣
-╠═ Installing: kubectl                                      ═╣
-╠════════════════════════════════════════════════════════════╣
-╠═ Installing: kubectl                                      ═╣
-╠════════════════════════════════════════════════════════════╣
-╠═ Creating backup and activating new installation          ═╣
-╚════════════════════════════════════════════════════════════╝
-
-Performing post processing steps...done.
-
-Update done!
-
-WARNING:   There are other instances of Google Cloud tools on your system PATH.
-  Please remove the following to avoid confusion or accidental invocation:
-
-  /usr/lib64/google-cloud-sdk/bin/anthoscli
-/usr/lib64/google-cloud-sdk/bin/bq
-/usr/lib64/google-cloud-sdk/bin/git-credential-gcloud.sh
-/usr/lib64/google-cloud-sdk/bin/docker-credential-gcloud
-/usr/lib64/google-cloud-sdk/bin/gsutil
-/usr/lib64/google-cloud-sdk/bin/gcloud
-
-
-$ kubectl version --client
-WARNING: This version information is deprecated and will be replaced with the output from kubectl version --short.  Use --output=yaml|json to get the full version.
-Client Version: version.Info{Major:"1", Minor:"27+", GitVersion:"v1.27.9-dispatcher", GitCommit:"8b508a33aafcd3ba51641b6b2ef203adbdd9de1e", GitTreeState:"clean", BuildDate:"2023-12-21T23:22:51Z", GoVersion:"go1.20.12", Compiler:"gc", Platform:"linux/amd64"}
-Kustomize Version: v5.0.1
-
-
+kubectl version --client
 ```
-
-
-# 3. gke-gcloud-auth-plugin 설치
+4. gke 인증 플러그인 설치
 ```
- gcloud components install gke-gcloud-auth-plugin
-
-
+gcloud components install gke-gcloud-auth-plugin
 gke-gcloud-auth-plugin --version
-Kubernetes v1.28.2-alpha+58ec6ae34b7dcd9699b37986ccb12b3bbac88f00
 ```
 
-# 4. kubectl 로 GKE와 연결
+4. kubectl 구성 업데이트 및 클러스터의 kubeconfig 컨텍스트를 생성
 ```
-gcloud container clusters list
-NAME       LOCATION         MASTER_VERSION      MASTER_IP      MACHINE_TYPE  NODE_VERSION        NUM_NODES  STATUS
-cluster-1  asia-northeast3  1.27.8-gke.1067004  34.64.112.202  g1-small      1.27.8-gke.1067004             RUNNING
+ gcloud container clusters list
+NAME                LOCATION           MASTER_VERSION      MASTER_IP      MACHINE_TYPE  NODE_VERSION        NUM_NODES  STATUS
+wocheon07-gke-test  asia-northeast3-a  1.29.0-gke.1381000  34.64.250.154  g1-small      1.29.0-gke.1381000             RUNNING
 
-$ gcloud container clusters get-credentials cluster-1 --location=asia-northeast3
-Fetching cluster endpoint and auth data.
-kubeconfig entry generated for cluster-1.
+
+gcloud container clusters get-credentials wocheon07-gke-test --region=asia-northeast3-a
 ```
 
 
-
-
-## Centos7
-
-### docker 공식 repo 추가 
-```bash
+5. docker 설치 
+```
 yum install -y yum-utils device-mapper-persistent-data lvm2
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-```
-
-### 설치가능한 도커 버전 확인
-```bash
-yum list docker-ce --showduplicates | sort -r
-```
-
-### docker 최신버전 설치 
-```bash
 yum install -y docker-ce.x86_64
+docker --version
+systemctl enable docker --now
 ```
 
-### 버전확인 
+6. ngix 이미지 pull 하여 pod 생성하기
+```
+docker image pull nginx 
+```
+
+- 기본 pod 생성
+```
+kubectl run my-app --image nginx --port=80
+```
+
+- deployment 생성
+```
+kubectl create deployment my-dep --image=nginx --port=80
+# scaling 진행
+kubectl scale deploy my-dep --replicas=2
+# 노드포트 추가
+kubectl expose deployment my-dep --type=NodePort
+```
+- 확인
+
 ```bash
-$ docker --version
-
-Docker version 24.0.5, build ced0996
-
-$ systemctl enable docker --now
-```
-
-
-
-## test
-
->kubectl_test.yaml
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-test-nginx-deploy
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      color: black
-  template:
-    metadata:
-      name: my-test-nginx
-      labels:
-        color: black
-    spec:
-      containers:
-      - name: my-test-nginx-ctn
-        image: nginx
-        ports:
-        - containerPort: 80
-          protocol: TCP
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-svc
-spec:
-  ports:
-    - name: webport
-      port: 8080
-      targetPort: 80
-      nodePort: 30001
-  selector:
-    color: black
-  type: NodePort
-
-
-```
-
-```
- kubectl apply -f kubectl_test.yaml
-
- kubectl get all
-NAME                                        READY   STATUS    RESTARTS   AGE
-pod/my-test-nginx-deploy-778c54b49f-rtfgq   1/1     Running   0          16s
-pod/my-test-nginx-deploy-778c54b49f-sbzd5   1/1     Running   0          16s
-pod/my-test-nginx-deploy-778c54b49f-vljnh   1/1     Running   0          16s
-
-NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
-service/kubernetes   ClusterIP   10.200.0.1     <none>        443/TCP          42h
-service/my-svc       NodePort    10.200.6.236   <none>        8080:30001/TCP   16s
-
-NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/my-test-nginx-deploy   3/3     3            3           16s
-
-NAME                                              DESIRED   CURRENT   READY   AGE
-replicaset.apps/my-test-nginx-deploy-778c54b49f   3         3         3       16s
-
-
-kubectl describe service/my-svc
-Name:                     my-svc
+ kubectl describe svc my-dep
+Name:                     my-dep
 Namespace:                default
-Labels:                   <none>
+Labels:                   app=my-dep
 Annotations:              cloud.google.com/neg: {"ingress":true}
-Selector:                 color=black
+Selector:                 app=my-dep
 Type:                     NodePort
 IP Family Policy:         SingleStack
 IP Families:              IPv4
-IP:                       10.200.6.236
-IPs:                      10.200.6.236
-Port:                     webport  8080/TCP
+IP:                       10.16.14.171
+IPs:                      10.16.14.171
+Port:                     <unset>  80/TCP
 TargetPort:               80/TCP
-NodePort:                 webport  30001/TCP
-Endpoints:                10.196.0.21:80,10.196.0.22:80,10.196.0.23:80
+NodePort:                 <unset>  31303/TCP
+Endpoints:                10.12.0.15:80,10.12.0.16:80
 Session Affinity:         None
 External Traffic Policy:  Cluster
 Events:                   <none>
-[root@kubectl-test wocheon07]# curl 10.196.0.21:80
+
+
+[root@gcp-ansible-test ~]$ curl 10.12.0.15:80
 <!DOCTYPE html>
 <html>
 <head>
@@ -321,6 +110,60 @@ Commercial support is available at
 <p><em>Thank you for using nginx.</em></p>
 </body>
 </html>
+```
+
+- gcp 방화벽 오픈후 확인
+http://34.22.95.3:31303/
 
 
+## kubectl 서비스계정관련 오류 
+
+- gke-gcloud-auth-plugin 은 캐시를 저장하여  사용하므로 잘못된 정보가 캐시되어있다면 다음과 같이 권한 오류가 발생할 수 있음
+
+- service 삭제 
+```
+[root@gcp-ansible-test ~]# kubectl delete service my-dep
+Error from server (Forbidden): services "my-dep" is forbidden: User "daskete07@gmail.com" cannot delete resource "services" in API group "" in the namespace "default": requires one of ["container.services.delete"] permission(s)
+```
+
+- gcloud 계정 확인
+    - default로 변경 확인
+    - 서비스 어카운트가 활성화 되지않았다면 gcloud config configurations activate default 로 변경
+    - 변경해도 캐시가 남아있으므로 kubectl로 변경이 불가능
+```    
+ gcloud config configurations list
+NAME     IS_ACTIVE  ACCOUNT                                             PROJECT    COMPUTE_DEFAULT_ZONE  COMPUTE_DEFAULT_REGION
+default  True       487401709675-compute@developer.gserviceaccount.com  gcp-in-ca  asia-northeast3-c     asia-northeast3
+viewer   False      daskete07@gmail.com                                 gcp-in-ca  asia-northeast3-c     asia-northeast3 #viewr 권한 계정
+```
+
+- gke_gcloud_auth_plugin_cache 확인 후 삭제 
+```
+ls -l .kube/gke_gcloud_auth_plugin_cache
+-rw------- 1 root root 393 Feb 27 21:32 .kube/gke_gcloud_auth_plugin_cache
+
+ rm .kube/gke_gcloud_auth_plugin_cache
+```
+- 정상적으로 삭제됨을 확인
+```
+kubectl delete service my-dep
+service "my-dep" deleted
+```
+
+## 노드풀 사이즈 조절
+- 노드풀 확인
+```
+gcloud container clusters describe wocheon07-gke-test --region=asia-northeast3-a
+```
+
+- 노드풀 사이즈 조절
+    - 옵션 순서대로 안쓰면 제대로 적용이 안되므로 주의
+```
+gcloud container clusters resize wocheon07-gke-test --region=asia-northeast3-a --num-nodes 0 --node-pool=node-pool-1
+
+Pool [node-pool-1] for [wocheon07-gke-test] will be resized to 0 node(s) in each zone it spans.
+
+Do you want to continue (Y/n)?  Y
+
+Resizing wocheon07-gke-test...⠼
 ```
