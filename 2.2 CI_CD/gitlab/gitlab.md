@@ -206,6 +206,8 @@ git config --global http.sslVerify false
 export GIT_SSL_NO_VERIFY=0
 ```
 
+<br>
+
 ## gitlab 상태 확인/ 실행 /중지 
 ```
 # gitlab 시작
@@ -221,6 +223,7 @@ gitlab-ctl status
 gitlab-ctl reconfigure
 ```
 
+<br>
 
 ## Github repository import 활성화 
 * Gitlab은 기존 Github Repository를 Import하여 사용가능함.
@@ -243,6 +246,9 @@ ghp_pCL7MBRuPjUYseI6zxxxxxxxxxx
 * 유저별로 설정에서 변경가능
 * 프로젝트(리포지토리) 별로 설정에서 변경가능
 * 번역률이 11%이므로 완벽하지는 않음...
+
+
+<br>
 
 ## Gitlab Container Registry
 * Docker Hub와 같은 이미지 저장소의 역할을 하는 기능.
