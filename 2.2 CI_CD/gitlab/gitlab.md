@@ -218,7 +218,7 @@ gitlab-ctl stop
 gitlab-ctl status
 
 # 설정파일 재설정 (중지 후 적용 시, 따로 재시작 필요)
-gitlab-reconfigure
+gitlab-ctl reconfigure
 ```
 
 
@@ -234,7 +234,7 @@ gitlab-reconfigure
 * setting > Developer Settings >  Personal access tokens 에서 토큰발행
 >ex)
 ```
-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
+ghp_pCL7MBRuPjUYseI6zxxxxxxxxxx
 ```
 
 - Import project 에서 github 선택후 토큰 붙여넣기
@@ -251,11 +251,61 @@ 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
 * 사용법은  Docker허브와 동일하며, 이미지명은 프로젝트 명으로 고정.
 * 버전 별로 구분하여 업로드 가능
 
-<br>
+- 기본적으로 https를 설정하면 자동으로 활성화되나 http로 연결하는 경우 세팅 변경필요
 
-## Gitlab Container Registry 사용법
 
-### Gitlab 정보
+### Gitlab Container Registry - HTTP 로 설정 
+- 설정파일 변경 
+> vi gitlab.rb
+```bash
+ gitlab_rails['gitlab_default_projects_features_container_registry'] = true
+ ...
+ registry_external_url 'http://34.64.94.9:5050'
+```
+- 설정 적용
+```
+gitlab-ctl reconfigure
+```
+
+### docker login시 오류 발생
+- HTTP 연결로 설정되었으므로 docker login 시 다음과 같은 오류 발생
+```
+$ docker login 34.64.75.69:5050
+Username: root
+Password:
+Error response from daemon: Get "https://34.64.75.69:5050/v2/": http: server gave HTTP response to HTTPS client
+```
+- 해당 registry를 insecure-registry로 설정해야 정상 작동
+
+
+> vi /etc/docker/daemon.json
+```json
+{
+
+    "insecure-registries": ["34.64.75.69:5050"]
+
+}
+```
+
+- docker 재기동 후 재 로그인
+```
+$ systemctl restart docker 
+
+$docker login 34.64.75.69:5050
+Username: root
+Password:
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+
+```
+
+### Gitlab Container Registry - HTTPS
+- Gitlab 외부 주소를 HTTPS로 해둔경우 자동으로 기능이 활성화됨
+
+#### Gitlab 연결 정보
 
 * 도메인명 : testdomainname.info
 * 사용자명 : wocheon
@@ -263,7 +313,7 @@ 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
 
 <br>
 
-### Gitlab Container Registry에 Image Push
+#### Gitlab Container Registry에 Image Push
 
 * Docker login으로 Container Registry에 연결
 ```bash
@@ -282,7 +332,7 @@ docker push testdomainname.info:5050/wocheon/docker_images
 <br>
 
 
-### Gitlab Container Registry에서 Image Pull
+#### Gitlab Container Registry에서 Image Pull
 
 * Docker login으로 Container Registry에 연결
 ```bash
