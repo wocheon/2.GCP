@@ -161,7 +161,7 @@ Go to the following link in your browser:
     https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=32555940559.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fsdk.cloud.google.com%2Fauthcode.html&scope=openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fappengine.admin+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsqlservice.login+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcompute+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Faccounts.reauth&state=9jTguSLyQddNUZDzpbKXE3ThFbih4z&prompt=consent&token_usage=remote&access_type=offline&code_challenge=-Ujw3qCKNkjkwa5oVtse4rfyXzioQJtxRmvYNs_9UB4&code_challenge_method=S256
 
 # 로그인 후에 나오는 코드값을 복사 붙여넣기
-Enter authorization code: 4/0AeaYSHA4EEBO2QKLSTa82kgB1qumKR_nvLqsOeHqc**************
+Enter authorization code: **************
 
 
 Updates are available for some Google Cloud CLI components.  To install them,
@@ -232,12 +232,12 @@ aws configure
 
 - MFA를 사용하는 경우 다음과 같이 사용 
 ```bash
-[root@ip-192-168-1-144 .aws]# aws sts get-session-token --serial-number arn:aws:iam::108547894481:mfa/ciw0707-s23 --token-code 546171
+[root@ip-192-168-1-144 .aws]# aws sts get-session-token --serial-number arn:aws:iam::******:mfa/ciw0707-s23 --token-code ******
 {
     "Credentials": {
-        "AccessKeyId": "ASIARSRPV********",
-        "SecretAccessKey": "33vDVSfqDFd8uF+bqub********",
-        "SessionToken": "IQoJb3J********",
+        "AccessKeyId": "********",
+        "SecretAccessKey": "********",
+        "SessionToken": "********",
         "Expiration": "2024-04-09T19:18:18+00:00"
     }
 }
@@ -246,9 +246,9 @@ aws configure
 #export AWS_SECRET_ACCESS_KEY=비밀엑세스키
 #export AWS_SESSION_TOKEN=세션토큰
 
-[root@ip-192-168-1-144 .aws]# export AWS_ACCESS_KEY_ID=ASIARSRPV********H
-export AWS_SECRET_ACCESS_KEY=33vDVSfqDFd8uF+********
-export AWS_SESSION_TOKEN=IQoJb3J********
+[root@ip-192-168-1-144 .aws]# export AWS_ACCESS_KEY_ID=********
+export AWS_SECRET_ACCESS_KEY=********
+export AWS_SESSION_TOKEN=********
 
 ```
 
