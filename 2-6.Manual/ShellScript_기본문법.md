@@ -777,6 +777,7 @@ echo "aa"
 echo "bb"
 asdf
 echo "cc"
+exec > /dev/tty
 ```
 
 >cat test.log
