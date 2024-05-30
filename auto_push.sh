@@ -1,4 +1,5 @@
 #!/bin/bash
+# auto push Scirpt 
 time=$(date '+%Y%m%d%H%M')
 branch=$(git branch | gawk '{print $2}')
 remote=$( git remote -v | grep push | gawk '{print $1}' )
