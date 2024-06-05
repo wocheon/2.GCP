@@ -125,6 +125,7 @@ gem install passenger
 ```
 
 ### passenger를 통해 아파치 모듈을 설치
+- OOM 주의 (2GB에서는 OOM 발생)
 ```
 passenger-install-apache2-module
 ```
