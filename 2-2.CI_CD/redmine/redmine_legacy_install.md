@@ -130,18 +130,19 @@ gem install passenger
 passenger-install-apache2-module
 ```
 
-### etc/httpd/conf.d/redmine.conf 파일에 passenger모듈 추가하고 vhost를 추가
+### /etc/httpd/conf.d/redmine.conf 파일수정
+- passenger모듈 추가, vhost를 추가
 ```
-LoadModule passenger_module /usr/local/lib/ruby/gems/2.6.0/gems/passenger-6.0.4/buildout/apache2/mod_passenger.so
+LoadModule passenger_module /usr/local/lib/ruby/gems/2.6.0/gems/passenger-6.0.22/buildout/apache2/mod_passenger.so
 <IfModule mod_passenger.c>
-  PassengerRoot /usr/local/lib/ruby/gems/2.6.0/gems/passenger-6.0.4
+  PassengerRoot /usr/local/lib/ruby/gems/2.6.0/gems/passenger-6.0.22
   PassengerDefaultRuby /usr/local/bin/ruby
   PassengerDefaultUser apache
 </IfModule>
 
 <VirtualHost *:80>
   ServerName redmine.com
-  DocumentRoot /usr/local/redmine/public
+  DocumentRoot /usr/local/src/redmine-4.1.0/public
   ErrorLog logs/redmine_error_log
     <Directory "/usr/local/src/redmine-4.1.0/public">
         Options FollowSymLinks
