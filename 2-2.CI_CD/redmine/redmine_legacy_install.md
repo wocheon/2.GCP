@@ -64,7 +64,7 @@ production:
   database: redmine
   host: localhost
   username: redmine
-  password: "redmine"
+  password: "1111"
   encoding: utf8
 ```
 
