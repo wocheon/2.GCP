@@ -72,7 +72,15 @@ production:
 ```
 bundle install --without development test --path vendor/bundle
 ```
+#### bundler error 발생 시 조치 
+- rubygem 버전 업그레이드 진행 
+```
+gem update --system 3.2.3
 
+gem install bundler rake loofah
+
+gem update
+```
 
 ###  loofah gem 버그 수정 
 ```
@@ -98,6 +106,17 @@ bundle exec rake generate_secret_token
 ### 데이터베이스 생성
 ```
 RAILS_ENV=production bundle exec rake db:migrate
+```
+
+#### 데이터 베이스 생성 - blankslate 에러 발생시 
+- Gemfile에 해당 라인 추가 
+> vi Gemfile
+```
+gem "blankslate"
+```
+
+```
+bundle install
 ```
 
 ### 기본 언어 설정 - ko
