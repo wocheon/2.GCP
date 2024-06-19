@@ -161,3 +161,17 @@ scrape_configs:
 ```bash
 systemctl restart prometheus grafana-server
 ```
+
+
+* 참고 - GCP상에 올라온 VM들 자동으로 검색하는 방법 
+```
+  - job_name: 'NodeExporter'
+    gce_sd_configs:
+      - project: test_project
+        zone: asia-northeast3-a
+        port: 9100
+        filter: (name="dev-*" status = "RUNNING")  OR (name="stg-*" status = "RUNNING")
+      - project: test_project
+        zone: asia-northeast3-a
+        port: 9100
+        filter: (name="prd-*" status = "RUNNING")
