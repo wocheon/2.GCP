@@ -94,7 +94,6 @@ CMD ["python", "app.py"]
 ```
 
 - docker image build 
-```
 ```bash
 docker build -t slack-api-app .
 ```
