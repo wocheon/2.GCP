@@ -106,7 +106,7 @@ docker run -d -p 5000:5000 --name slack-api slack-api-app
 
 7. Slack 메세지 발송 테스트 
 ```sh
-$ curl -X POST http://localhost:5000/send-message -H "Content-Type: application/json" -d '{"text": }'
+$ curl -X POST http://localhost:5000/send-message -H "Content-Type: application/json" -d '{"text": "slack_test" }'
 
 
 {"channel":"C075QKNQZJN","message":{"app_id":"A075QGZPSUB","blocks":[{"block_id":"Uheg","elements":[{"elements":[{"text":"Hello, Slack!","type":"text"}],"type":"rich_text_section"}],"type":"rich_text"}],"bot_id":"B07Q9PEJZB2","bot_profile":{"app_id":"A075QGZPSUB","deleted":false,"icons":{"image_36":"https://a.slack-edge.com/80588/img/plugins/app/bot_36.png","image_48":"https://a.slack-edge.com/80588/img/plugins/app/bot_48.png","image_72":"https://a.slack-edge.com/80588/img/plugins/app/service_72.png"},"id":"B07Q9PEJZB2","name":"test-app","team_id":"T07639T5HFB","updated":1727680976},"team":"T07639T5HFB","text":"Hello, Slack!","ts":"1727681075.195169","type":"message","user":"U076DDF2PHN"},"ok":true,"response_metadata":{"warnings":["missing_charset"]},"ts":"1727681075.195169","warning":"missing_charset"}
