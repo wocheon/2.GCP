@@ -38,22 +38,43 @@
 
 6. Slack API - docker container 생성 
 
+- app.py 
+    - 실행 파일
+
+- requirements.txt
+    - 필요 pip 모듈 목록
+
+- variables.txt
+    - Slack 채널 및 토큰 정보 포함
+
+
 > cat app.py
-```
+```py
+# -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify
 import requests
 
 app = Flask(__name__)
 
-SLACK_TOKEN = 'xxxxxx'  # Slack OAuth 토큰
-SLACK_CHANNEL = 'C075QKNQZJN'  # 메시지를 보낼 채널 ID
+# Load variables from variables.txt
+def load_variables():
+    variables = {}
+    with open('variables.txt', 'r') as file:
+        for line in file:
+            key, value = line.strip().split('=')
+            variables[key] = value
+    return variables
+
+config = load_variables()
+SLACK_TOKEN = config.get('SLACK_TOKEN')  # Slack OAuth token
+SLACK_CHANNEL = config.get('SLACK_CHANNEL')  # Channel ID to send messages
 
 @app.route('/send-message', methods=['POST'])
 def send_message():
     data = request.json
     text = data.get('text', 'Hello from Docker!')
 
-    # Slack API 호출
+    # Slack API call
     response = requests.post('https://slack.com/api/chat.postMessage', json={
         'channel': SLACK_CHANNEL,
         'text': text
@@ -66,6 +87,7 @@ def send_message():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 ```	
 > cat requirements.txt
 ```
@@ -73,9 +95,15 @@ Flask
 requests
 ```
 
+> cat variables.txt
+```
+SLACK_TOKEN=[SLACK_OAuth_Token]
+SLACK_CHANNEL=[SLACK_CHANNAL_ID]
+```
+
 
 > dockerfile 
-```
+```docker
 # Python 3.9 기반 이미지 사용
 FROM python:3.9-slim
 
@@ -88,6 +116,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 코드 복사
 COPY app.py .
+COPY variables.txt .
 
 # 컨테이너 시작 시 Flask 앱 실행
 CMD ["python", "app.py"]
@@ -123,10 +152,46 @@ $ curl -X POST http://localhost:5000/send-message -H "Content-Type: application/
 host=$(hostname)
 ip=$(hostname -i | awk '{print $1}')
 messages=$1
+slack_api_url="http://localhost:5000/send-message"
 
-curl -X POST http://localhost:5000/send-message -H "Content-Type: application/json" -d "{\"text\": \"${host}(${ip}) - ${message}\"}"
+curl -X POST $slack_api_url -H "Content-Type: application/json" -d "{\"text\": \"${host}(${ip}) - ${message}\"}"
 ```
 
 
 
- 
+ > cat send_messages.py
+ ```py
+ # -*- coding: utf-8 -*-
+import requests
+import json
+import sys
+
+message = sys.argv[1]  # 첫 번째 인수로 메시지 내용
+
+def send_message(message):
+    # POST 요청을 보낼 URL
+    url = "http://localhost:5000/send-message"
+
+    # 헤더 설정
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    # 메시지 데이터를 JSON 형식으로 설정
+    data = {
+        "text": message
+    }
+
+    # POST 요청 보내기
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+
+    # 응답 출력
+#    print(f"Status Code: {response.status_code}")
+    print("Status Code: %s" % response.status_code)
+#    print(f"Response Body: {response.text}")
+    print("Response Body: %s" % response.text)
+
+if __name__ == "__main__":
+    # 명령줄 인수로부터 메시지를 받음
+        send_message(message) 
+ ```
