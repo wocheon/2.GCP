@@ -52,6 +52,21 @@ requests==2.31.0
 gunicorn>=22.0.0
 ```
 
+
+### Google Cloud Functions 환경 변수 사용 방법
+
+Google Cloud Functions에서 `os.getenv()`를 사용하여 가져오는 변수는 **런타임 환경 변수**입니다. 이는 Cloud Function이 실행되는 동안 사용할 수 있는 변수입니다. 
+
+### 런타임 환경 변수
+- **정의**: 함수가 실행되는 동안 사용할 수 있는 변수입니다. 이 변수는 함수가 호출될 때 설정되며, 함수 코드 내에서 `os.getenv()`를 통해 접근할 수 있습니다.
+- **설정 방법**: 
+  - `gcloud` CLI를 사용해 배포할 때 `--set-env-vars` 플래그를 통해 설정할 수 있습니다.
+  - Google Cloud Console의 Cloud Function 편집 화면에서 직접 설정할 수 있습니다.
+
+### 빌드 환경 변수
+- **정의**: 빌드 환경 변수는 주로 Cloud Build와 같은 CI/CD 도구에서 사용되며, 컨테이너 이미지를 빌드할 때 필요한 설정값입니다. 빌드 단계에서만 사용되며, 함수가 실행될 때는 접근할 수 없습니다.
+- **설정 방법**: Cloud Build 구성 파일(`cloudbuild.yaml`)에서 설정할 수 있습니다.
+
 ### Cloud Function에 대한 엑세스 권한 부여 
 
 - 테스트 진행을 위해 AllUsers를 부여 
