@@ -6,6 +6,11 @@ awk '{print $6, $11}' /var/log/haproxy/haproxy_0.log | sort | uniq -c | sort -nr
 ## HAProxy 접근 IP 별 HTTP Code 값 , Count 추출 
 ```sh
 awk '{split($6, a, ":"); print a[1], $11}' /var/log/haproxy/haproxy_0.log | sort | uniq -c | sort -nr
+
+# Hostname, IP, HTTP_code, Count 순으로 추출하기
+HOSTNAME=$(hostname)
+awk '{split($6, a, ":"); print a[1], $11}' /var/log/haproxy/haproxy_0.log | sort | uniq -c | sort -nr | awk -v host="$HOSTNAME" '{print host, $2, $3, $1}'
+
 ```
 ## HAProxy ACL 설정 
 - 특정 IP 목록을 접근 불가 IP로 설정
