@@ -240,10 +240,14 @@ certbot certificates
 - GCP의 Cloud DNS, AWS의 Route 53등을 사용중인 경우 DNS에 TXT레코드를 추가하여 인증하는 방식으로 인증서 갱신 가능
 - 443 포트를 사용하며 HAProxy의 연결과는 독립적인 작업이므로 영향 없음
 - 인증 과정중 트래픽 흐름이나 세션연결에 변화 없음
+- 현재 서비스가 사용중이라 인증서 갱신이 어려운 경우 사용가능
 
 > 예시 - GCP Cloud DNS를 통해 인증서 갱신
 ```
 # Service Account 키파일을 사용하여 Cloud DNS를 통해 인증서 갱신 수행
 certbot certonly --dns-google --dns-google-credentials [Service_Account_keyfile] -d example.com -d www.example.com -d sub.example.com
+
+#갱신후 HAProxy 설정 리로드 (재기동 없이 설정만 재로드)
+systemctl reload haproxy
 ```
 
