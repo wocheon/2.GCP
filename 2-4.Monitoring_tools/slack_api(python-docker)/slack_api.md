@@ -44,7 +44,10 @@
 - requirements.txt
     - 필요 pip 모듈 목록
 
-- variables.txt
+- variables/
+	- dev_variables.txt
+ 	- infra_variables.txt
+  	- application_variables.txt
     - Slack 채널 및 토큰 정보 포함
 
 
@@ -57,29 +60,72 @@ import requests
 app = Flask(__name__)
 
 # Load variables from variables.txt
-def load_variables():
+def load_variables(file_name):
     variables = {}
-    with open('variables.txt', 'r') as file:
+    with open(file_name, 'r') as file:
         for line in file:
             key, value = line.strip().split('=')
             variables[key] = value
     return variables
 
-config = load_variables()
-SLACK_TOKEN = config.get('SLACK_TOKEN')  # Slack OAuth token
-SLACK_CHANNEL = config.get('SLACK_CHANNEL')  # Channel ID to send messages
+dev_config = load_variables('variables/dev_variables.txt')
+infra_config = load_variables('variables/infra_variables.txt')
+application_config = load_variables('variables/application_variables.txt')
 
-@app.route('/send-message', methods=['POST'])
-def send_message():
+SLACK_TOKEN_DEV = dev_config.get('SLACK_TOKEN')  # Slack OAuth token
+SLACK_CHANNEL_DEV = dev_config.get('SLACK_CHANNEL')  # Channel ID to send messages
+
+SLACK_TOKEN_INFRA = infra_config.get('SLACK_TOKEN')  # Slack OAuth token for infra
+SLACK_CHANNEL_INFRA = infra_config.get('SLACK_CHANNEL')  # Slack channel for infra
+
+SLACK_TOKEN_APPLICATION = application_config.get('SLACK_TOKEN')  # Slack OAuth token for smslog
+SLACK_CHANNEL_APPLICATION = application_config.get('SLACK_CHANNEL')  # Slack channel for smslog
+
+@app.route('/send-message/dev', methods=['POST'])
+def send_message_dev():
     data = request.json
     text = data.get('text', 'Hello from Docker!')
 
     # Slack API call
     response = requests.post('https://slack.com/api/chat.postMessage', json={
-        'channel': SLACK_CHANNEL,
+        'channel': SLACK_CHANNEL_DEV,
         'text': text
     }, headers={
-        'Authorization': f'Bearer {SLACK_TOKEN}',
+        'Authorization': f'Bearer {SLACK_TOKEN_DEV}',
+        'Content-Type': 'application/json'
+    })
+
+    return jsonify(response.json()), response.status_code
+
+
+@app.route('/send-message/infra', methods=['POST'])
+def send_message_infra():
+    data = request.json
+    text = data.get('text', 'Hello from Infra!')
+
+    # Slack API call for infra
+    response = requests.post('https://slack.com/api/chat.postMessage', json={
+        'channel': SLACK_CHANNEL_INFRA,
+        'text': text
+    }, headers={
+        'Authorization': f'Bearer {SLACK_TOKEN_INFRA}',
+        'Content-Type': 'application/json'
+    })
+
+    return jsonify(response.json()), response.status_code
+
+
+@app.route('/send-message/application', methods=['POST'])
+def send_message_application():
+    data = request.json
+    text = data.get('text', 'Hello from Web!')
+
+    # Slack API call for smslog
+    response = requests.post('https://slack.com/api/chat.postMessage', json={
+        'channel': SLACK_CHANNEL_APPLICATION,
+        'text': text
+    }, headers={
+        'Authorization': f'Bearer {SLACK_TOKEN_APPLICATION}',
         'Content-Type': 'application/json'
     })
 
@@ -87,7 +133,6 @@ def send_message():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-
 ```	
 > cat requirements.txt
 ```
@@ -95,7 +140,7 @@ Flask
 requests
 ```
 
-> cat variables.txt
+> cat variables/dev_variables.txt
 ```
 SLACK_TOKEN=[SLACK_OAuth_Token]
 SLACK_CHANNEL=[SLACK_CHANNAL_ID]
@@ -116,7 +161,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 코드 복사
 COPY app.py .
-COPY variables.txt .
+RUN mkdir -p /app/variables
+COPY variables/* /app/variables/
 
 # 컨테이너 시작 시 Flask 앱 실행
 CMD ["python", "app.py"]
@@ -135,7 +181,7 @@ docker run -d -p 5000:5000 --name slack-api slack-api-app
 
 7. Slack 메세지 발송 테스트 
 ```sh
-$ curl -X POST http://localhost:5000/send-message -H "Content-Type: application/json" -d '{"text": "slack_test" }'
+$ curl -X POST http://localhost:5000/send-message/dev -H "Content-Type: application/json" -d '{"text": "slack_test" }'
 
 
 {"channel":"C075QKNQZJN","message":{"app_id":"A075QGZPSUB","blocks":[{"block_id":"Uheg","elements":[{"elements":[{"text":"Hello, Slack!","type":"text"}],"type":"rich_text_section"}],"type":"rich_text"}],"bot_id":"B07Q9PEJZB2","bot_profile":{"app_id":"A075QGZPSUB","deleted":false,"icons":{"image_36":"https://a.slack-edge.com/80588/img/plugins/app/bot_36.png","image_48":"https://a.slack-edge.com/80588/img/plugins/app/bot_48.png","image_72":"https://a.slack-edge.com/80588/img/plugins/app/service_72.png"},"id":"B07Q9PEJZB2","name":"test-app","team_id":"T07639T5HFB","updated":1727680976},"team":"T07639T5HFB","text":"Hello, Slack!","ts":"1727681075.195169","type":"message","user":"U076DDF2PHN"},"ok":true,"response_metadata":{"warnings":["missing_charset"]},"ts":"1727681075.195169","warning":"missing_charset"}
@@ -152,7 +198,7 @@ $ curl -X POST http://localhost:5000/send-message -H "Content-Type: application/
 host=$(hostname)
 ip=$(hostname -i | awk '{print $1}')
 messages=$1
-slack_api_url="http://localhost:5000/send-message"
+slack_api_url="http://localhost:5000/send-message/dev"
 
 curl -X POST $slack_api_url -H "Content-Type: application/json" -d "{\"text\": \"${host}(${ip}) - ${message}\"}"
 ```
@@ -170,7 +216,7 @@ message = sys.argv[1]  # 첫 번째 인수로 메시지 내용
 
 def send_message(message):
     # POST 요청을 보낼 URL
-    url = "http://localhost:5000/send-message"
+    url = "http://localhost:5000/send-message/dev"
 
     # 헤더 설정
     headers = {
