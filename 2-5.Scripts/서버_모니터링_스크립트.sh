@@ -29,11 +29,11 @@ echo ""
 bg_grey "#Top"
 top -b -n 1 | head -5
 
-if [ $os = "Ubuntu" ]; then
-    bg_blue "*CPU Usage (%) : $( mpstat | tail -1 | awk '{print 100-$NF}')"
-else
+#if [ $os = "Ubuntu" ]; then
+#    bg_blue "*CPU Usage (%) : $( mpstat | tail -1 | awk '{print 100-$NF}')"
+#else
     bg_blue "*CPU Usage (%) : $(top -b -n1 | grep -Po '[0-9.]+ id' | awk '{print 100-$1}' | head -1)"
-fi
+#fi
 
 #echo "#mpstat (CPU Usage Detail)"
 #mpstat -P ALL
@@ -47,11 +47,12 @@ bg_grey "#Memory"
 free -h
 total=$(free -m | grep Mem: | awk '{print $2}')
 use=$(free -m | grep Mem: | awk '{print $3}')
+buff_cache=$(free -m | grep Mem: | awk '{print $6}')
 avail=$(free -m | grep Mem: | awk '{print $7}')
-use_per_1=$(echo "scale=2; ($total -$avail) / $total * 100" | bc)
-use_per_2=$(echo "scale=2; $use/ $total * 100" | bc)
+use_per_1=$(echo "scale=2; ($total - $avail) / $total * 100" | bc)
+use_per_2=$(echo "scale=2; 100 - ( $total - $use - $buff_cache ) / $total * 100" | bc)
 bg_blue "Memory Usage (Total - available) (%) : $use_per_1 %"
-bg_blue "Memory Usage (Total - use - buff_cache)(%) : $use_per2 %"
+bg_blue "Memory Usage (Total - use - buff_cache)(%) : $use_per_2 %"
 echo ""
 
 bg_grey "#Disk Usage"
