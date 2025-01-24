@@ -119,6 +119,7 @@ services:
     ports:
       - '80:80'
       - '443:443'
+      - '5005:5005' # Container Registry Port
       - '10022:22'
     volumes:
       - '$GITLAB_HOME/config:/etc/gitlab'
