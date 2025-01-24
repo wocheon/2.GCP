@@ -136,12 +136,17 @@ docker-compse up -d
 
 ### Docker-Compose 컨테이너 동작 확인
 ```
-docker ps 
+docker ps -a
 ```
 
 ### Docker-Compose 컨테이너 로그 조회 ( 컨테이너 올린후 3분정도 소요)
 ```
 docker logs -f 
+```
+
+### Docker-Compose로 실행한 Gitlab Container 접속
+```
+docker exec -it gitlab-ce /bin/bash
 ```
 
 
