@@ -6385,8 +6385,8 @@
           "allFormat": "glob",
           "current": {
             "selected": false,
-            "text": "10.2.89.91:9100",
-            "value": "10.2.89.91:9100"
+            "text": "x:9100",
+            "value": "x:9100"
           },
           "datasource": {
             "type": "prometheus",
