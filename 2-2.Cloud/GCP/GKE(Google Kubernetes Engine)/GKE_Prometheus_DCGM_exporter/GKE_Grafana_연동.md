@@ -83,7 +83,7 @@ cd kube-prometheus-stack/
   - grafana 는 LoadBalancer를 통해 외부IP로 접근가능하도록 설정
   - pv를 생성하여 노드가 삭제되어도 내용이 지워지지 않도록 설정
 
->vi prom-values.yml
+>vi prom-values.yaml
 ```
 grafana:
   service:
@@ -109,7 +109,7 @@ kubectl create ns monitor
 - k8s용 prometheus stack helm 차트 설치
 
 ```bash
-$ helm install prometheus prometheus-community/kube-prometheus-stack -f prom-values.yml -n monitor
+$ helm install prometheus prometheus-community/kube-prometheus-stack -f prom-values.yaml -n monitor
 NAME: prometheus
 LAST DEPLOYED: Wed Mar  6 17:05:41 2024
 NAMESPACE: monitor
@@ -132,7 +132,7 @@ prometheus      monitor         1               2024-03-06 17:05:41.812335341 +0
 
 ```
 kubectl apply -f dcgm_exporter.yaml --namespace monitor
-kubectl apply -f pod_monitoring.yaml --namespace monitor
+kubectl apply -f dcgm_exporter_service_monitoring.yaml --namespace monitor
 ```
 
 ### DCGM_Exporter - Prometheus Stack 연동
@@ -158,7 +158,7 @@ kubectl label servicemonitors.monitoring.coreos.com dcgm-exporter release=promet
 - 다음 내용을 변경후 helm 재배포 진행
 
 
->vi prom-values.yml
+>vi prom-values.yaml
 ```
 grafana:
   service:
@@ -176,3 +176,133 @@ prometheus:
             requests:
               storage: 50Gi
 ```
+
+## 추가 변경 사항  
+
+### GKE 노드 외 일반 VM(GCE)의 Node_exporter와 연결 
+- GKE 노드 외의 GCE VM의 Node_exporter와의 연결이 필요한 경우, prom-values.yaml 파일 수정하여 재배포 수행
+
+> prom-values.yaml
+```yaml
+grafana:
+  service:
+    type: LoadBalancer
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false # 해당 구문을 추가
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard          
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+    additionalScrapeConfigs:      # 해당 구문 추가
+      - job_name: 'node_exporter_external'
+        static_configs:
+          - targets:              # 타겟 서버 및 Node_exporter 포트 지정
+              - '192.168.1.150:9100'
+```
+
+- Helm chart 재배포
+```sh
+helm upgrade --install prometheus prometheus-community/kube-prometheus-stack -f prom-values.yaml -n monitor
+```
+
+
+### 노드 재기동, 재생성시 기존 데이터 삭제 현상 해결
+- Grafana - Prometheus를 사용중인 노드의 재기동 혹은 삭제 후 재생성되는 경우, 변경한 데이터가 삭제되는 현상 발생 
+  - 기본값으로 지정된 StorageClass인 Standard의 RECLAIM_POLICY 값이 DELETE이므로 발생하는 문제
+  - RECLAIM_POLICY가 Retain인 StorageClass 생성 필요 
+  - 기존 Helm Chart 및 pv,pvc 삭제 후 재배포 필요
+
+## RECLAM_POLICY가 RETAIN인 StoargeClass 생성
+
+- 현재 pv,pvc 상태 확인
+  - 현재 PV의 RECLAIM POLICY가 Delete임을 확인 
+
+``` bash
+[root@gcp-ansible-test]$ kubectl get pv,pvc -A
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                                            STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+persistentvolume/pvc-dfe922fb-d7d5-4fa5-9358-1e34de3c529c   50Gi       RWO            Delete           Bound    monitor/prometheus-prometheus-kube-prometheus-eus-prometheus-0   standard       <unset>                          3h7m
+
+NAMESPACE   NAME                                                                                                                           STATUS   VOLUME    SS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+monitor     persistentvolumeclaim/prometheus-prometheus-kube-prometheus-prometheus-db-prometheus-prometheus-kube-prometheus-prometheus-0   Bound    pvc-dfe922           standard       <unset>                 3h7m
+
+```
+
+- StorageClass 목록 확인 
+  - 현재 존재하는 모든 StorageClass는 RECLAIMPOLICY가 delete이므로 신규 생성 필요
+```sh
+[root@gcp-ansible-test ]$ kubectl get storageclass
+NAME                     PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+premium-rwo              pd.csi.storage.gke.io   Delete          WaitForFirstConsumer   true                   3h53m
+standard                 kubernetes.io/gce-pd    Delete          Immediate              true                   3h53m
+standard-rwo (default)   pd.csi.storage.gke.io   Delete          WaitForFirstConsumer   true                   3h53m
+```
+
+- 신규 Storageclass 용 yaml파일 작성
+
+> retain-storageclass.yaml
+
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: retain-storage
+provisioner: kubernetes.io/gce-pd
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+```
+
+- 신규 Storageclass 생성
+```sh
+[root@gcp-ansible-test ]$ kubectl apply -f retain-storage.yaml
+storageclass.storage.k8s.io/retain-storage created
+
+[root@gcp-ansible-test ]$ kubectl get storageclass
+NAME                     PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+premium-rwo              pd.csi.storage.gke.io   Delete          WaitForFirstConsumer   true                   3h53m
+retain-storage           kubernetes.io/gce-pd    Retain          WaitForFirstConsumer   true                   47m
+standard                 kubernetes.io/gce-pd    Delete          Immediate              true                   3h53m
+standard-rwo (default)   pd.csi.storage.gke.io   Delete          WaitForFirstConsumer   true                   3h53m
+```
+
+
+- 기존 helm chart 및 pv,pvc 전부 삭제 진행
+
+```sh
+# Helm Chart 삭제 
+helm delete prometheus -n monitor
+
+# pvc 삭제 
+kubectl delete persistentvolumeclaim/prometheus-prometheus-kube-prometheus-prometheus-db-prometheus-prometheus-kube-prometheus-prometheus-0 -n monitor
+
+# pv 삭제
+kubectl delete persistentvolume/pvc-dfe922fb-d7d5-4fa5-9358-1e34de3c529c -n monitor
+```
+
+- Helm Chart 재배포 수행 
+```
+helm install prometheus prometheus-community/kube-prometheus-stack -f prom-values.yaml -n monitor
+```
+
+- 재배포 후 생성된 PV의 RECLAME_POLICY 확인
+```sh
+[root@gcp-ansible-test]$ kubectl get pv,pvc -A
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                                            STORAGECLASS     VOLUMEATTRIBUTESCLASS   REASON   AGE
+persistentvolume/pvc-34d6c664-6777-47b0-81a3-32a10be1bded   50Gi       RWO            Retain           Bound    monitor/prometheus-prometheus-kube-prometheus-eus-prometheus-0   retain-storage   <unset>                          21s
+
+NAMESPACE   NAME                                                                                                                           STATUS   VOLUME    SS MODES   STORAGECLASS     VOLUMEATTRIBUTESCLASS   AGE
+monitor     persistentvolumeclaim/prometheus-prometheus-kube-prometheus-prometheus-db-prometheus-prometheus-kube-prometheus-prometheus-0   Bound    pvc-34d6c6           retain-storage   <unset>                 25s
+```
+
+- 정상 동작 테스트
+  - Grafana에 신규 대시보드 Import 
+  - 기존 노드 삭제를 위해 GKE 노드 크기조절 ( 1 -> 0 )
+  - 신규 노드 생성을 위해 GKE 노드 크기조절 ( 0 -> 1 )
+  - Granfana 접속 후 Import한 대시보드가 유지되는지 확인 
+    - 노드 재생성 후에도 기존 Import한 대시보드 남아있는 것을 확인하였음
