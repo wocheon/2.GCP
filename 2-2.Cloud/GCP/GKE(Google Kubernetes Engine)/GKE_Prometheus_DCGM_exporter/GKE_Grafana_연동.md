@@ -181,6 +181,7 @@ prometheus:
 
 ### GKE 노드 외 일반 VM(GCE)의 Node_exporter와 연결 
 - GKE 노드 외의 GCE VM의 Node_exporter와의 연결이 필요한 경우, prom-values.yaml 파일 수정하여 재배포 수행
+- Grafana에 대한 PVC 설정 추가
 
 > prom-values.yaml
 ```yaml
@@ -194,7 +195,7 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: standard          
+          storageClassName: prometheus-storage          
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
@@ -251,7 +252,7 @@ standard-rwo (default)   pd.csi.storage.gke.io   Delete          WaitForFirstCon
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: retain-storage
+  name: prometheus-storage
 provisioner: kubernetes.io/gce-pd
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
@@ -269,6 +270,41 @@ premium-rwo              pd.csi.storage.gke.io   Delete          WaitForFirstCon
 retain-storage           kubernetes.io/gce-pd    Retain          WaitForFirstConsumer   true                   47m
 standard                 kubernetes.io/gce-pd    Delete          Immediate              true                   3h53m
 standard-rwo (default)   pd.csi.storage.gke.io   Delete          WaitForFirstConsumer   true                   3h53m
+```
+
+- prom-values.yaml 파일 수정
+  - Grafana에 대한 PVC 설정 추가
+  - PVC Storageclass 변경 
+
+> prom-values.yaml
+```yaml
+grafana:
+  service:
+    type: LoadBalancer
+  persistence:      # Grafana 관련 데이터가 날아가지 않도록 PVC 설정
+    enabled: true
+    storageClassName: prometheus-storage
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false # 해당 구문을 추가
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: prometheus-storage          
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+    additionalScrapeConfigs:      # 해당 구문 추가
+      - job_name: 'node_exporter_external'
+        static_configs:
+          - targets:              # 타겟 서버 및 Node_exporter 포트 지정
+              - '192.168.1.150:9100'
 ```
 
 
@@ -292,12 +328,14 @@ helm install prometheus prometheus-community/kube-prometheus-stack -f prom-value
 
 - 재배포 후 생성된 PV의 RECLAME_POLICY 확인
 ```sh
-[root@gcp-ansible-test]$ kubectl get pv,pvc -A
-NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                                            STORAGECLASS     VOLUMEATTRIBUTESCLASS   REASON   AGE
-persistentvolume/pvc-34d6c664-6777-47b0-81a3-32a10be1bded   50Gi       RWO            Retain           Bound    monitor/prometheus-prometheus-kube-prometheus-eus-prometheus-0   retain-storage   <unset>                          21s
+[root@gcp-ansible-test kube-prometheus-stack]# kubectl get pv,pvc -A
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                                            STORAGECLASS         VOLUMEATTRIBUTESCLASS   REASON   AGE
+persistentvolume/pvc-509901a4-5d1e-4282-b637-661befae131d   50Gi       RWO            Retain           Bound    monitor/prometheus-prometheus-kube-prometheus-eus-prometheus-0   prometheus-storage   <unset>                          16m
+persistentvolume/pvc-c2c55906-dcf9-4fdd-b83a-770ff27bd535   10Gi       RWO            Retain           Bound    monitor/prometheus-grafana                                       prometheus-storage   <unset>                          31s
 
-NAMESPACE   NAME                                                                                                                           STATUS   VOLUME    SS MODES   STORAGECLASS     VOLUMEATTRIBUTESCLASS   AGE
-monitor     persistentvolumeclaim/prometheus-prometheus-kube-prometheus-prometheus-db-prometheus-prometheus-kube-prometheus-prometheus-0   Bound    pvc-34d6c6           retain-storage   <unset>                 25s
+NAMESPACE   NAME                                                                                                                           STATUS   VOLUME    SS MODES   STORAGECLASS         VOLUMEATTRIBUTESCLASS   AGE
+monitor     persistentvolumeclaim/prometheus-grafana                                                                                       Bound    pvc-c2c559           prometheus-storage   <unset>                 35s
+monitor     persistentvolumeclaim/prometheus-prometheus-kube-prometheus-prometheus-db-prometheus-prometheus-kube-prometheus-prometheus-0   Bound    pvc-509901           prometheus-storage   <unset>                 16m
 ```
 
 - 정상 동작 테스트
