@@ -213,13 +213,13 @@ helm upgrade --install prometheus prometheus-community/kube-prometheus-stack -f 
 ```
 
 
-### 노드 재기동, 재생성시 기존 데이터 삭제 현상 해결
+## 노드 재기동, 재생성시 기존 데이터 삭제 현상 해결
 - Grafana - Prometheus를 사용중인 노드의 재기동 혹은 삭제 후 재생성되는 경우, 변경한 데이터가 삭제되는 현상 발생 
   - 기본값으로 지정된 StorageClass인 Standard의 RECLAIM_POLICY 값이 DELETE이므로 발생하는 문제
   - RECLAIM_POLICY가 Retain인 StorageClass 생성 필요 
   - 기존 Helm Chart 및 pv,pvc 삭제 후 재배포 필요
 
-## RECLAM_POLICY가 RETAIN인 StoargeClass 생성
+### RECLAM_POLICY가 RETAIN인 StoargeClass 생성
 
 - 현재 pv,pvc 상태 확인
   - 현재 PV의 RECLAIM POLICY가 Delete임을 확인 
@@ -246,7 +246,7 @@ standard-rwo (default)   pd.csi.storage.gke.io   Delete          WaitForFirstCon
 
 - 신규 Storageclass 용 yaml파일 작성
 
-> retain-storageclass.yaml
+> prometheus-storageclass.yaml
 
 ```yaml
 apiVersion: storage.k8s.io/v1
